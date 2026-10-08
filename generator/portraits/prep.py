@@ -94,6 +94,7 @@ outputs = {
     "one-back": scene("delaware.png", (380, 0, 422)),
     "five-front": person("hill.png", (178, 72, 245)),
     "ten-front": person("jobs.png", (180, 0, 330), not_white=True),
+    "hundred-front": person("dicaprio.png", (229, 140, 330), keep_x=(110, 340)),
     "fifty-front": person("drake.png", (365, 0, 400), dark_in=[(300, 185), (250, 210), (228, 300), (222, 452), (482, 452), (472, 300), (452, 210), (405, 185)], keep_x=(215, 495)),
 }
 for k, im in outputs.items():

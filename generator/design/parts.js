@@ -52,50 +52,51 @@ function paperLayer(n, id) {
 
 /* offset-printed tints and the denomination's fine-line security field, kept out of clear areas */
 function backgroundLayer(n, id, clearAreas) {
-  const pat = PATTERNS[n.pattern](60, 60, W - 60, H - 60, { stroke: n.secondary, sw: .3, ...n.patternOpts });
+  // offset-printed underprint: a faint colour wash and the denomination's fine-line pattern in its light ink
+  const pat = PATTERNS[n.pattern](60, 60, W - 60, H - 60, { stroke: n.primary, sw: .26, ...n.patternOpts });
   const holes = clearAreas.map(a => a.type === "ellipse"
     ? `<ellipse cx="${a.cx}" cy="${a.cy}" rx="${a.rx * 1.18}" ry="${a.ry * 1.18}" fill="url(#${id}-wmfade)"/>`
-    : `<rect x="${a.x}" y="${a.y}" width="${a.w}" height="${a.h}" rx="6" fill="#000"/>`).join("");
+    : `<ellipse cx="${a.x + a.w / 2}" cy="${a.y + a.h / 2}" rx="${a.w * .62}" ry="${a.h * .62}" fill="url(#${id}-wmfade)"/>`).join("");
   return `<mask id="${id}-bgmask"><rect width="${W}" height="${H}" fill="#fff"/>${holes}</mask>
     <g mask="url(#${id}-bgmask)">
-      <rect x="18" y="18" width="${W - 36}" height="${H - 36}" fill="url(#${id}-iris)"/>
-      <rect x="18" y="18" width="${W - 36}" height="${H - 36}" fill="url(#${id}-vfade)"/>
+      <rect x="50" y="50" width="${W - 100}" height="${H - 100}" fill="url(#${id}-iris)" opacity=".7"/>
       <g opacity=".42">${pat}</g>
     </g>`;
 }
 
 function border(n, id, topWord, bottomWord) {
+  // white-line border: the band is solid plate ink with the lathe pattern cut through it in paper colour
   const band = rectPts(34, 34, W - 34, H - 34, 10);
   const micro = `UNITED STATES OF AMERICA • ${n.words} • `.repeat(30);
-  let o = `<rect x="18" y="18" width="${W - 36}" height="${H - 36}" rx="3" fill="none" stroke="${n.plate}" stroke-width="1.3"/>`;
-  o += `<path d="${poly(rectPts(19, 19, W - 19, H - 19, 3), true)}M50 50H${W - 50}V${H - 50}H50Z" fill="${n.paper}" fill-rule="evenodd"/>`;
-  o += `<path d="${poly(rectPts(19, 19, W - 19, H - 19, 3), true)}M50 50H${W - 50}V${H - 50}H50Z" fill="${n.tint1}" fill-rule="evenodd" opacity=".5"/>`;
-  o += latheBand(band, { w: 25, wave: 15, count: 7, stroke: n.primary, sw: .26 });
-  o += latheBand(band, { w: 25, wave: 46, count: 2, stroke: n.secondary, sw: .45 });
-  o += `<path d="${poly(rectPts(22.5, 22.5, W - 22.5, H - 22.5, 1), true)}M46.5 46.5H${W - 46.5}V${H - 46.5}H46.5Z" fill="none" stroke="${n.plate}" stroke-width=".3"/>`;
-  o += `<rect x="50" y="50" width="${W - 100}" height="${H - 100}" fill="none" stroke="${n.plate}" stroke-width="1"/>`;
-  o += `<rect x="53.6" y="53.6" width="${W - 107.2}" height="${H - 107.2}" fill="none" stroke="${n.plate}" stroke-width=".35"/>`;
-  o += `<path id="${id}-mp" d="M58 58H${W - 58}V${H - 58}H58Z" fill="none"/>
-    <text font-family="${FONT.small}" font-size="3.4" font-weight="700" fill="${n.plate}" letter-spacing=".2"><textPath href="#${id}-mp" textLength="${2 * (W - 116) + 2 * (H - 116) - 4}" lengthAdjust="spacingAndGlyphs">${micro.slice(0, 1180)}</textPath></text>`;
-  // corner blocks
+  const ring = `${poly(rectPts(18, 18, W - 18, H - 18, 3), true)}M50 50H${W - 50}V${H - 50}H50Z`;
+  let o = `<path d="${ring}" fill="${n.primary}" fill-rule="evenodd"/>`;
+  o += latheBand(band, { w: 26, wave: 14, count: 8, stroke: n.paper, sw: .42 });
+  o += `<g opacity=".55">${latheBand(band, { w: 26, wave: 52, count: 3, stroke: n.tint1, sw: .6 })}</g>`;
+  o += `<path d="${poly(rectPts(21.5, 21.5, W - 21.5, H - 21.5, 1), true)}M46.5 46.5H${W - 46.5}V${H - 46.5}H46.5Z" fill="none" stroke="${n.paper}" stroke-width=".7"/>`;
+  o += `<rect x="50" y="50" width="${W - 100}" height="${H - 100}" fill="none" stroke="${n.plate}" stroke-width="1.2"/>`;
+  o += `<rect x="54" y="54" width="${W - 108}" height="${H - 108}" fill="none" stroke="${n.plate}" stroke-width=".4"/>`;
+  o += `<path id="${id}-mp" d="M59 59H${W - 59}V${H - 59}H59Z" fill="none"/>
+    <text font-family="${FONT.small}" font-size="3.4" font-weight="700" fill="${n.plate}" letter-spacing=".2"><textPath href="#${id}-mp" textLength="${2 * (W - 118) + 2 * (H - 118) - 4}" lengthAdjust="spacingAndGlyphs">${micro.slice(0, 1180)}</textPath></text>`;
   for (const [x, y] of [[18, 18], [W - 50, 18], [18, H - 50], [W - 50, H - 50]]) {
-    o += `<rect x="${x}" y="${y}" width="32" height="32" fill="${n.paper}" stroke="${n.plate}" stroke-width=".9"/>`;
-    o += rosetteRing(x + 16, y + 16, 4, 14, { lobes: 12, count: 8, stroke: n.primary, sw: .28 });
-    o += rings(x + 16, y + 16, [14.5, 3.6], n.plate, .5);
+    o += `<rect x="${x}" y="${y}" width="32" height="32" fill="${n.plate}"/>`;
+    o += rosetteRing(x + 16, y + 16, 3, 14.5, { lobes: 12, count: 8, stroke: n.paper, sw: .38 });
+    o += rings(x + 16, y + 16, [15, 3], n.paper, .6);
   }
-  o += cartouche(n, W / 2, 34, topWord, `600 11.5px ${FONT.caps}`, 4.5, 15);
-  o += cartouche(n, W / 2, H - 34, bottomWord, `700 15px ${FONT.caps}`, 4.5, 17);
+  o += cartouche(n, W / 2, 34, topWord, `700 11.5px ${FONT.caps}`, 5, 15);
+  o += cartouche(n, W / 2, H - 34, bottomWord, `700 15px ${FONT.caps}`, 5, 17);
   return o;
 }
+
 function cartouche(n, cx, cy, text, font, ls, h) {
-  const w = measure(text, font, ls) + 64;
+  // a darker tablet let into the border, lettered in paper colour
+  const w = measure(text, font, ls) + 70;
   const x0 = cx - w / 2, x1 = cx + w / 2;
-  const shape = `M${f(x0)} ${cy}L${f(x0 + 14)} ${cy - h}H${f(x1 - 14)}L${f(x1)} ${cy}L${f(x1 - 14)} ${cy + h}H${f(x0 + 14)}Z`;
-  const inner = `M${f(x0 + 6)} ${cy}L${f(x0 + 17)} ${cy - h + 3.5}H${f(x1 - 17)}L${f(x1 - 6)} ${cy}L${f(x1 - 17)} ${cy + h - 3.5}H${f(x0 + 17)}Z`;
-  return `<path d="${shape}" fill="${n.paper}" stroke="${n.plate}" stroke-width="1.1"/>
-    <path d="${inner}" fill="none" stroke="${n.plate}" stroke-width=".4"/>
-    ${beads(x0 + 8.5, cy, 0, 1, 1.6, n.plate)}${beads(x1 - 8.5, cy, 0, 1, 1.6, n.plate)}
-    <text x="${cx}" y="${cy + parseFloat(font.match(/(\d+(\.\d+)?)px/)[1]) * .36}" text-anchor="middle" style="font:${font};letter-spacing:${ls}px" fill="${n.plate}">${esc(text)}</text>`;
+  const shape = `M${f(x0)} ${cy}Q${f(x0 + 8)} ${cy - h} ${f(x0 + 22)} ${cy - h}H${f(x1 - 22)}Q${f(x1 - 8)} ${cy - h} ${f(x1)} ${cy}Q${f(x1 - 8)} ${cy + h} ${f(x1 - 22)} ${cy + h}H${f(x0 + 22)}Q${f(x0 + 8)} ${cy + h} ${f(x0)} ${cy}Z`;
+  const inner = `M${f(x0 + 7)} ${cy}Q${f(x0 + 13)} ${cy - h + 3.5} ${f(x0 + 24)} ${cy - h + 3.5}H${f(x1 - 24)}Q${f(x1 - 13)} ${cy - h + 3.5} ${f(x1 - 7)} ${cy}Q${f(x1 - 13)} ${cy + h - 3.5} ${f(x1 - 24)} ${cy + h - 3.5}H${f(x0 + 24)}Q${f(x0 + 13)} ${cy + h - 3.5} ${f(x0 + 7)} ${cy}Z`;
+  return `<path d="${shape}" fill="${n.plate}" stroke="${n.paper}" stroke-width=".8"/>
+    <path d="${inner}" fill="none" stroke="${n.paper}" stroke-width=".4"/>
+    ${beads(x0 + 12, cy, 0, 1, 1.7, n.paper)}${beads(x1 - 12, cy, 0, 1, 1.7, n.paper)}
+    <text x="${cx}" y="${cy + parseFloat(font.match(/(\d+(\.\d+)?)px/)[1]) * .36}" text-anchor="middle" style="font:${font};letter-spacing:${ls}px" fill="${n.paper}">${esc(text)}</text>`;
 }
 
 /* shaded engraved lettering: line-hatched fill, hairline outline, offset shadow */
@@ -117,57 +118,58 @@ function measure(text, font, ls = 0) {
 function numeralSize(s, box) { return s.length === 1 ? box * 1.25 : s.length === 2 ? box * .95 : box * .68; }
 
 function cornerMedallion(n, cx, cy, r) {
+  // dark white-line rosette ring round a light counter carrying the numeral
   const s = String(n.v);
-  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${n.paper}"/>
-    ${rosetteRing(cx, cy, r * .62, r * .95, { lobes: 22, count: 8, stroke: n.primary, sw: .24 })}
-    ${beads(cx, cy, r - 1.4, 72, .55, n.plate)}
-    ${rings(cx, cy, [r, r * .97], n.plate, .5)}${rings(cx, cy, [r * .6], n.plate, .9)}
-    <circle cx="${cx}" cy="${cy}" r="${r * .58}" fill="${n.paper}"/>
-    ${rings(cx, cy, [r * .53], n.plate, .35)}
-    ${plainText(s, cx, cy + numeralSize(s, r * .6) * .35, `900 ${f(numeralSize(s, r * .6))}px ${FONT.num}`, n.plate)}`;
+  const inner = r * .6;
+  const fs = numeralSize(s, inner);
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${n.primary}"/>
+    ${rosetteRing(cx, cy, inner + 1, r - 2, { lobes: 22, count: 9, stroke: n.paper, sw: .38 })}
+    ${beads(cx, cy, r - 1.6, 64, .7, n.paper)}
+    <circle cx="${cx}" cy="${cy}" r="${inner}" fill="${n.paper}"/>
+    ${rings(cx, cy, [inner - 2.2], n.plate, .45)}
+    ${plainText(s, cx, cy + fs * .35, `900 ${f(fs)}px ${FONT.num}`, n.plate)}`;
 }
 
 /* the front's large high-contrast numeral (placeholder A1), set in a layered lathe medallion */
 function bigMedallion(n, id, cx, cy, R) {
+  // large numeral (placeholder A1): dark lace rosette, light counter, solid plate-ink numeral for maximum contrast
   const s = String(n.v);
-  const disc = R * .55;
-  let o = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${n.paper}" opacity=".7"/>`;
-  o += beads(cx, cy, R - 1.5, 150, .9, n.plate);
-  o += rosetteRing(cx, cy, R * .82, R * .985, { lobes: 54, count: 14, stroke: n.primary, sw: .28 });
-  o += rings(cx, cy, [R * .815, R * .8], n.plate, .45);
-  o += rosetteRing(cx, cy, disc + 2, R * .79, { lobes: 30, count: 22, stroke: n.secondary, sw: .26 });
-  o += rosetteRing(cx, cy, disc + 6, R * .7, { lobes: 15, count: 10, stroke: n.primary, sw: .3, families: 1 });
+  const disc = R * .58;
+  let o = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${n.primary}"/>`;
+  o += rosetteRing(cx, cy, R * .84, R * .985, { lobes: 60, count: 9, stroke: n.paper, sw: .4 });
+  o += rings(cx, cy, [R * .83], n.paper, .8);
+  o += rosetteRing(cx, cy, disc + 3, R * .81, { lobes: 32, count: 14, stroke: n.paper, sw: .36 });
+  o += `<g opacity=".6">${rosetteRing(cx, cy, disc + 3, R * .81, { lobes: 16, count: 4, stroke: n.tint1, sw: .5, families: 1 })}</g>`;
+  o += beads(cx, cy, R - 1.8, 160, .9, n.paper);
   o += `<circle cx="${cx}" cy="${cy}" r="${disc}" fill="${n.paper}"/>`;
-  o += rings(cx, cy, [disc, disc - 3], n.plate, 1) + rings(cx, cy, [disc - 5], n.plate, .3);
-  const fs = s.length === 1 ? disc * 1.55 : s.length === 2 ? disc * 1.2 : disc * .86;
+  o += `<g opacity=".35">${rosetteRing(cx, cy, disc * .35, disc - 4, { lobes: 40, count: 8, stroke: n.primary, sw: .22 })}</g>`;
+  o += rings(cx, cy, [disc - 3], n.plate, .6);
+  const fs = s.length === 1 ? disc * 1.5 : s.length === 2 ? disc * 1.16 : disc * .84;
   o += plainText(s, cx, cy + fs * .28, `900 ${f(fs)}px ${FONT.num}`, n.plate);
-  o += `<path id="${id}-mw" d="M${cx - disc + 11} ${cy} A${disc - 11} ${disc - 11} 0 0 0 ${cx + disc - 11} ${cy}" fill="none"/>
+  o += `<path id="${id}-mw" d="M${cx - disc + 12} ${cy} A${disc - 12} ${disc - 12} 0 0 0 ${cx + disc - 12} ${cy}" fill="none"/>
     <text style="font:700 8.5px ${FONT.caps};letter-spacing:3px" fill="${n.plate}" text-anchor="middle"><textPath href="#${id}-mw" startOffset="50%">${n.word1}</textPath></text>`;
   return o;
 }
 
 /* arched vignette window with a triple frame */
 function vignetteFrame(n, id, box, img, caption, overlay = "") {
+  // arched window: hairline, dark white-line lathe band, hairline, outer rule
   const { x0, y0, x1, y1, ys } = box;
   const inner = archPts(x0, y0, x1, y1, ys, 4);
   const mid = offsetPts(inner, 9), outer = offsetPts(inner, 18);
   let o = `<clipPath id="${id}-arch"><path d="${poly(inner, true)}"/></clipPath>`;
   o += `<path d="${poly(outer, true)}" fill="${n.paper}"/>`;
   o += `<g clip-path="url(#${id}-arch)"><rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" fill="${n.paper}"/>
-        <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" fill="${n.tint1}" opacity=".35"/>
         <image href="${img}" x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" preserveAspectRatio="none"/>${overlay}</g>`;
-  o += `<path d="${poly(offsetPts(inner, 15.4), true)}${poly(offsetPts(inner, 2.6), true).replace("M", "M")}" fill="${n.tint1}" fill-rule="evenodd" opacity=".6"/>`;
-  o += latheBand(mid, { w: 11.5, wave: 12, count: 6, stroke: n.primary, sw: .3 });
-  o += latheBand(mid, { w: 11.5, wave: 40, count: 2, stroke: n.secondary, sw: .45 });
-  o += `<path d="${poly(inner, true)}" fill="none" stroke="${n.plate}" stroke-width="1.4"/>`;
-  o += `<path d="${poly(offsetPts(inner, 2.6), true)}" fill="none" stroke="${n.plate}" stroke-width=".35"/>`;
-  o += `<path d="${poly(offsetPts(inner, 15.4), true)}" fill="none" stroke="${n.plate}" stroke-width=".35"/>`;
-  o += `<path d="${poly(outer, true)}" fill="none" stroke="${n.plate}" stroke-width="1.1"/>`;
-  // caption tablet across the bottom of the frame
-  const font = `700 9px ${FONT.caps}`, w = measure(caption, font, 3) + 40, cx = (x0 + x1) / 2, cy = y1 + 9;
-  o += `<rect x="${f(cx - w / 2)}" y="${cy - 9}" width="${f(w)}" height="18" fill="${n.paper}" stroke="${n.plate}" stroke-width=".9"/>
-        <rect x="${f(cx - w / 2 + 3)}" y="${cy - 6}" width="${f(w - 6)}" height="12" fill="none" stroke="${n.plate}" stroke-width=".3"/>`;
-  o += plainText(caption, cx, cy + 3.2, font, n.plate, { ls: 3 });
+  o += `<path d="${poly(offsetPts(inner, 15.6), true)}${poly(offsetPts(inner, 2.4), true)}" fill="${n.primary}" fill-rule="evenodd"/>`;
+  o += latheBand(mid, { w: 12, wave: 11, count: 6, stroke: n.paper, sw: .36 });
+  o += `<path d="${poly(inner, true)}" fill="none" stroke="${n.plate}" stroke-width="1.2"/>`;
+  o += `<path d="${poly(outer, true)}" fill="none" stroke="${n.plate}" stroke-width=".9"/>`;
+  o += `<path d="${poly(offsetPts(inner, 21), true)}" fill="none" stroke="${n.plate}" stroke-width=".35"/>`;
+  const font = `700 9px ${FONT.caps}`, w = measure(caption, font, 3) + 44, cx = (x0 + x1) / 2, cy = y1 + 9;
+  o += `<rect x="${f(cx - w / 2)}" y="${cy - 9.5}" width="${f(w)}" height="19" rx="2" fill="${n.plate}"/>
+        <rect x="${f(cx - w / 2 + 3)}" y="${cy - 6.5}" width="${f(w - 6)}" height="13" fill="none" stroke="${n.paper}" stroke-width=".35"/>`;
+  o += plainText(caption, cx, cy + 3.2, font, n.paper, { ls: 3 });
   return o;
 }
 
@@ -223,10 +225,11 @@ function register(n, cx, cy, r, back) {
 }
 /* small rosette used where frames meet */
 function knot(n, cx, cy, r) {
-  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${n.paper}"/>` +
-    rosetteRing(cx, cy, r * .35, r * .97, { lobes: 14, count: 7, stroke: n.primary, sw: .25 }) +
-    rings(cx, cy, [r, r * .35], n.plate, .6) + `<circle cx="${cx}" cy="${cy}" r="${r * .16}" fill="${n.plate}"/>`;
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${n.primary}"/>` +
+    rosetteRing(cx, cy, r * .3, r * .95, { lobes: 14, count: 7, stroke: n.paper, sw: .34 }) +
+    rings(cx, cy, [r * .3], n.paper, .6) + `<circle cx="${cx}" cy="${cy}" r="${r * .14}" fill="${n.paper}"/>`;
 }
+
 /* faint lathe field printed behind a panel to give it depth */
 function panelField(n, cx, cy, R) {
   return `<g opacity=".3">${rosetteRing(cx, cy, R * .74, R, { lobes: 64, count: 10, stroke: n.primary, sw: .2 })}</g>`;
@@ -284,18 +287,15 @@ function specimen(n, x, y) {
 }
 
 function numeralPanel(n, id, p, s, word) {
-  const pts = rectPts(p.x, p.y, p.x + p.w, p.y + p.h, 6);
-  let o = `<rect x="${p.x - 8}" y="${p.y - 8}" width="${p.w + 16}" height="${p.h + 16}" rx="10" fill="${n.paper}"/>`;
-  o += latheBand(offsetPts(pts, 6), { w: 8, wave: 11, count: 5, stroke: n.primary, sw: .26 });
-  o += `<path d="${poly(pts, true)}" fill="${n.paper}" stroke="${n.plate}" stroke-width="1"/>`;
-  o += `<path d="${poly(offsetPts(pts, 11), true)}" fill="none" stroke="${n.plate}" stroke-width=".6"/>`;
-  o += `<path d="${poly(offsetPts(pts, -3), true)}" fill="none" stroke="${n.plate}" stroke-width=".3"/>`;
-  for (const [x, y] of [[p.x, p.y], [p.x + p.w, p.y], [p.x, p.y + p.h], [p.x + p.w, p.y + p.h]]) o += knot(n, x, y, 9);
-  const fs = s.length === 1 ? 250 : s.length === 2 ? 186 : 128;
-  const cx = p.x + p.w / 2;
-  o += plainText(s, cx + 2.5, p.y + 212, `900 ${fs}px ${FONT.num}`, n.tint1);
-  o += plainText(s, cx, p.y + 209, `900 ${fs}px ${FONT.num}`, n.plate);
-  o += `<path d="M${cx - 92} ${p.y + 232}H${cx + 92}" stroke="${n.plate}" stroke-width=".4"/>`;
-  o += plainText(word, cx, p.y + 262, `700 21px ${FONT.caps}`, n.plate, { ls: 6 });
+  // the back's high-contrast numeral (A1): solid plate ink on clear paper, no box, framed by lathe scrolls
+  const cx = p.x + p.w / 2, cy = p.y + p.h / 2;
+  const fs = s.length === 1 ? 270 : s.length === 2 ? 196 : 136;
+  let o = `<circle cx="${cx}" cy="${cy - 20}" r="${p.w * .58}" fill="${n.primary}"/><circle cx="${cx}" cy="${cy - 20}" r="${p.w * .5}" fill="${n.paper}"/>${rosetteRing(cx, cy - 20, p.w * .5 + 1, p.w * .58 - 1, { lobes: 70, count: 7, stroke: n.paper, sw: .38 })}`;
+  o += rings(cx, cy - 20, [p.w * .5 - 1], n.plate, .35);
+  o += plainText(s, cx, p.y + 210, `900 ${fs}px ${FONT.num}`, n.plate);
+  const font = `700 20px ${FONT.caps}`, w = measure(word, font, 6) + 50;
+  o += `<rect x="${f(cx - w / 2)}" y="${p.y + 240}" width="${f(w)}" height="30" rx="3" fill="${n.plate}"/>`;
+  o += `<rect x="${f(cx - w / 2 + 3)}" y="${p.y + 243}" width="${f(w - 6)}" height="24" rx="2" fill="none" stroke="${n.paper}" stroke-width=".4"/>`;
+  o += plainText(word, cx, p.y + 262, font, n.paper, { ls: 6 });
   return o;
 }
