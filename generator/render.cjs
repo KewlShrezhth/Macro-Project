@@ -24,12 +24,16 @@ const INK = { 1: "#232a27", 5: "#2a2633", 10: "#33231a", 20: "#132b29", 50: "#2e
     const imgs = {};
     for (const side of ["front", "back"]) {
       const scene = `${SLUG[v]}-${side}`;
-      const shader = path.join(__dirname, "vignettes", scene + ".glsl");
+      // a prepared photo in generator/portraits/<scene>.png is engraved with the portrait shader instead of a scene shader
+      const photo = path.join(__dirname, "portraits", scene + ".png");
+      const usePhoto = fs.existsSync(photo);
+      const shaderName = usePhoto ? "portrait" : scene;
+      const shader = path.join(__dirname, "vignettes", shaderName + ".glsl");
       const out = path.join(VOUT, scene + ".png");
       if (!fs.existsSync(shader)) { console.log("missing shader", scene); continue; }
-      const stale = !fs.existsSync(out) || [shader, ...["common.glsl", "main.glsl", "main2d.glsl"].map(f => path.join(__dirname, "vignettes", f))]
-        .some(f => fs.statSync(f).mtimeMs > fs.statSync(out).mtimeMs);
-      if (force || stale) await renderVignette(browser, { scene, w: VIG.w * SCALE, h: VIG.h * SCALE, lpx: LINE * SCALE, ink: INK[v], out });
+      const inputs = [shader, ...(usePhoto ? [photo] : []), ...["common.glsl", "main.glsl", "main2d.glsl"].map(f => path.join(__dirname, "vignettes", f))];
+      const stale = !fs.existsSync(out) || inputs.some(f => fs.statSync(f).mtimeMs > fs.statSync(out).mtimeMs);
+      if (force || stale) await renderVignette(browser, { scene: shaderName, w: VIG.w * SCALE, h: VIG.h * SCALE, lpx: LINE * SCALE, ink: INK[v], out, image: usePhoto ? photo : undefined });
       imgs[side] = "data:image/png;base64," + fs.readFileSync(out).toString("base64");
     }
     if (!imgs.front || !imgs.back) continue;
