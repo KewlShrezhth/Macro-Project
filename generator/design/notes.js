@@ -22,12 +22,12 @@ const DENOMS = {
        thread: 446, dots: 4, front: { scene: "twenty-front", caption: "THE HIGH SIERRA" }, back: { scene: "twenty-back", caption: "THE GIANT SEQUOIA GROVE" } },
   50: { v: 50, word1: "FIFTY", words: "FIFTY DOLLARS", theme: "Democracy",
        plate: "#2e1519", primary: "#6e2232", secondary: "#a88645", tint1: "#ecd7d6", tint2: "#efe5cf", paper: "#f6f2ea",
-       pattern: "chevron", patternOpts: { gap: 5.5 }, ovi: ["#6a2a1f", "#b7874a", "#8c9a55", "#2f5e45"],
+       pattern: "chevron", patternOpts: { gap: 5.5 }, serialInk: "#7e5f25", sealColor: "#8f6f30", ovi: ["#6a2a1f", "#b7874a", "#8c9a55", "#2f5e45"],
        sealInk: "#1f1718", district: 5, letter: "E", city: "RICHMOND", serial: "SE 70365128 E", plateNo: "B 11", check: "E 6",
-       thread: 1130, dots: 5, front: { scene: "fifty-front", caption: "THE CAPITOL DOME" }, back: { scene: "fifty-back", caption: "THE HALL OF THE PEOPLE" } },
+       thread: 1130, dots: 5, front: { scene: "fifty-front", caption: "THE CAPITOL DOME" }, back: { scene: "fifty-back", caption: "THE HALL OF THE PEOPLE", overlay: (n, v) => plainText("WE THE PEOPLE", v.x0 + .7 * (v.y1 - v.y0), v.y0 + .2905 * (v.y1 - v.y0), `700 14px ${FONT.caps}`, n.plate, { ls: 9 }) } },
   100: { v: 100, word1: "ONE HUNDRED", words: "ONE HUNDRED DOLLARS", theme: "Unity",
        plate: "#141b30", primary: "#23345f", secondary: "#8e99a8", tint1: "#d7dceb", tint2: "#e4e7ec", paper: "#f3f3f1",
-       pattern: "flow", patternOpts: { gap: 5 }, ovi: ["#5e3a1c", "#b88c52", "#6e8f86", "#26505f"],
+       pattern: "flow", patternOpts: { gap: 5 }, serialInk: "#2f4a78", sealColor: "#5d6878", ovi: ["#5e3a1c", "#b88c52", "#6e8f86", "#26505f"],
        sealInk: "#15171d", district: 11, letter: "K", city: "DALLAS", serial: "SK 85219406 F", plateNo: "E 2", check: "K 8",
        thread: 452, dots: 6, front: { scene: "hundred-front", caption: "THE GOLDEN GATE" }, back: { scene: "hundred-back", caption: "ACROSS THE STRAIT" } },
 };
@@ -86,7 +86,7 @@ function back(n, img, frontImg) {
   o += securityThread(n, mx(n.thread), true);
   o += border(n, id, "E PLURIBUS UNUM", n.words);
   o += engravedText(n, id, "UNITED STATES OF AMERICA", W / 2, G.head, 33, { ls: 6 });
-  o += vignetteFrame(n, id, v, img, n.back.caption);
+  o += vignetteFrame(n, id, v, img, n.back.caption, n.back.overlay ? n.back.overlay(n, v) : "");
   o += knot(n, v.x0 - 9, v.ys + 2, 15) + knot(n, v.x1 + 9, v.ys + 2, 15);
   // left: watermark seen from the back, register, Federal Reserve seal
   o += watermarkSurround(n, mx(G.wm.cx), G.wm.cy, G.wm.rx, G.wm.ry);
@@ -98,10 +98,55 @@ function back(n, img, frontImg) {
   o += treasurySeal(n, id, G.wm.cx, 520, 46);
   o += tactileStrip(n, id, mx(80), 196, 404);
   // serial numbers
-  o += plainText(n.serial, 152, 140, `600 17px ${FONT.mono}`, n.secondary, { anchor: "start", ls: 1.5 });
-  o += plainText(n.serial, 1408, 592, `600 17px ${FONT.mono}`, n.secondary, { anchor: "end", ls: 1.5 });
+  o += plainText(n.serial, 152, 140, `600 17px ${FONT.mono}`, n.serialInk || n.secondary, { anchor: "start", ls: 1.5 });
+  o += plainText(n.serial, 1408, 592, `600 17px ${FONT.mono}`, n.serialInk || n.secondary, { anchor: "end", ls: 1.5 });
   o += plainText(n.plateNo, 1470, 162, `700 9px ${FONT.small}`, n.plate, { anchor: "end" });
   o += cornerMedallion(n, 100, 100, G.corner) + cornerMedallion(n, mx(100), 100, G.corner) + cornerMedallion(n, 100, H - 100, G.corner) + cornerMedallion(n, mx(100), H - 100, G.corner);
   o += specimen(n, 264, 455);
+  return o + "</svg>";
+}
+
+/* Annotated sheet: the note with labelled call-outs in a margin. Feature names are placeholders until the Part 1 answers are supplied. */
+const FEATURES = {
+  // label: [x in note units, "top" | "bottom"]
+  front: n => [
+    { code: "A1", title: "Accessibility feature 1", name: "Large high-contrast numeral", at: [210, 270], label: [200, "top"] },
+    { code: "S2", title: "Security feature 2", name: "Security thread", at: [n.thread, 330], label: [n.thread < 780 ? 540 : 1010, "top"] },
+    { code: "S3", title: "Security feature 3", name: "Watermark window", at: [1296, 200], label: [1360, "top"] },
+    { code: "A2", title: "Accessibility feature 2", name: "Tactile raised dots", at: [80, 300], label: [200, "bottom"] },
+    { code: "\u2014", title: "Marking", name: "SPECIMEN \u00b7 class project", at: [1296, 455], label: [1010, "bottom"], fixed: true },
+    { code: "S1", title: "Security feature 1", name: "Colour-shifting numeral", at: [1372, 535], label: [1360, "bottom"] },
+  ],
+  back: n => [
+    { code: "SN", title: "Serial numbers", name: "Top left and bottom right", at: [310, 134], label: [200, "top"], fixed: true },
+    { code: "S3", title: "Security feature 3", name: "Watermark (seen from back)", at: [250, 250], label: [540, "top"] },
+    { code: "S2", title: "Security feature 2", name: "Thread (seen from back)", at: [mx(n.thread), 330], label: [mx(n.thread) < 780 ? 880 : 1040, "top"] },
+    { code: "A1", title: "Accessibility feature 1", name: "Large high-contrast numeral", at: [1281, 300], label: [1380, "top"] },
+    { code: "FR", title: "Federal Reserve seal", name: `District ${n.district}, ${n.city.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}`, at: [282, 520], label: [200, "bottom"], fixed: true },
+    { code: "S4", title: "Additional security feature", name: "See-through register", at: [246, 408], label: [540, "bottom"] },
+    { code: "TS", title: "Treasury seal", name: "Lower right, every note", at: [1296, 520], label: [1110, "bottom"], fixed: true },
+    { code: "A2", title: "Accessibility feature 2", name: "Tactile raised dots", at: [1480, 300], label: [1420, "bottom"] },
+  ],
+};
+function annotated(n, side, noteSvg) {
+  const M = { x: 110, y: 130 }, WW = W + 2 * M.x, HH = H + 2 * M.y;
+  const inner = noteSvg.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WW} ${HH}" width="${WW}" height="${HH}">
+    <rect width="${WW}" height="${HH}" fill="#ffffff"/>
+    <g transform="translate(${M.x} ${M.y})">${inner}</g>`;
+  for (const ft of FEATURES[side](n)) {
+    const top = ft.label[1] === "top";
+    const [ax, ay] = [ft.at[0] + M.x, ft.at[1] + M.y], lx = ft.label[0] + M.x, ly = top ? 52 : HH - 66;
+    const ey = top ? ly + 44 : ly - 24;
+    o += `<path d="M${ax} ${ay}L${ax} ${ey}L${lx} ${ey}" fill="none" stroke="#b3212b" stroke-width="1.2"/>
+      <circle cx="${ax}" cy="${ay}" r="5" fill="#ffffff" stroke="#b3212b" stroke-width="2"/><circle cx="${ax}" cy="${ay}" r="1.8" fill="#b3212b"/>`;
+    const tx = lx, ty = ly;
+    o += `<g transform="translate(${tx} ${ty})">
+      <text x="0" y="0" text-anchor="middle" style="font:700 15px 'IBM Plex Mono', monospace" fill="#b3212b">${ft.code} · ${esc(ft.title)}</text>
+      <text x="0" y="19" text-anchor="middle" style="font:700 15px 'Old Standard TT', serif" fill="#1d1f24">${esc(ft.name)}</text>
+      ${ft.fixed ? "" : `<text x="0" y="36" text-anchor="middle" style="font:italic 12.5px 'Old Standard TT', serif" fill="#6a6f78">Placeholder: replace with Part 1 answer</text>`}
+    </g>`;
+  }
+  o += `<text x="${WW / 2}" y="${HH - 16}" text-anchor="middle" style="font:700 13px 'IBM Plex Mono', monospace" fill="#6a6f78">$${n.v} · ${side.toUpperCase()} · ${esc(n.theme.toUpperCase())}</text>`;
   return o + "</svg>";
 }

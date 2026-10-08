@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="fonts/fonts.css">
-<style>html,body{margin:0;background:#fff} #stage svg{display:block}</style>
+<style>html,body{margin:0;background:#fff} #stage svg{display:block} text{font-variant-numeric:lining-nums}</style>
 <div style="position:absolute;left:-9999px;top:0">
   <span style="font:600 20px Cinzel">A</span><span style="font:700 20px Cinzel">A</span><span style="font:900 20px Cinzel">A</span>
   <span style="font:900 20px 'Playfair Display'">1</span><span style="font:700 20px 'Old Standard TT'">A</span>
@@ -13,11 +13,12 @@
 <script src="design/parts.js"></script>
 <script src="design/notes.js"></script>
 <script>
-window.compose = async (v, side, imgs) => {
+window.compose = async (v, side, imgs, annotate) => {
   await document.fonts.ready;
   for (const u of Object.values(imgs)) { const im = new Image(); im.src = u; await im.decode(); }
   const n = DENOMS[v];
-  document.getElementById("stage").innerHTML = side === "front" ? front(n, imgs.front) : back(n, imgs.back, imgs.front);
+  const svg = side === "front" ? front(n, imgs.front) : back(n, imgs.back, imgs.front);
+  document.getElementById("stage").innerHTML = annotate ? annotated(n, side, svg) : svg;
   await new Promise(r => setTimeout(r, 400));
   return true;
 };

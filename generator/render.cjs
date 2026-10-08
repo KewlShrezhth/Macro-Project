@@ -38,10 +38,17 @@ const INK = { 1: "#232a27", 5: "#2a2633", 10: "#33231a", 20: "#132b29", 50: "#2e
     page.on("pageerror", e => console.error("page error:", e.message));
     await page.goto("file://" + path.join(__dirname, "note.html"));
     for (const side of ["front", "back"]) {
-      await page.evaluate(({ v, side, imgs }) => window.compose(v, side, imgs), { v, side, imgs });
+      await page.evaluate(({ v, side, imgs }) => window.compose(v, side, imgs, false), { v, side, imgs });
       const file = path.join(OUT, `${v}-dollar-${side}.png`);
       await page.locator("#stage svg").screenshot({ path: file });
       console.log("wrote", path.relative(ROOT, file));
+      await page.setViewportSize({ width: 1780, height: 920 });
+      await page.evaluate(({ v, side, imgs }) => window.compose(v, side, imgs, true), { v, side, imgs });
+      const afile = path.join(OUT, "annotated", `${v}-dollar-${side}-annotated.png`);
+      fs.mkdirSync(path.dirname(afile), { recursive: true });
+      await page.locator("#stage svg").screenshot({ path: afile, scale: "css" });
+      await page.setViewportSize({ width: 1560, height: 660 });
+      console.log("wrote", path.relative(ROOT, afile));
     }
     await ctx.close();
   }

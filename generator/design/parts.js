@@ -147,7 +147,7 @@ function bigMedallion(n, id, cx, cy, R) {
 }
 
 /* arched vignette window with a triple frame */
-function vignetteFrame(n, id, box, img, caption) {
+function vignetteFrame(n, id, box, img, caption, overlay = "") {
   const { x0, y0, x1, y1, ys } = box;
   const inner = archPts(x0, y0, x1, y1, ys, 4);
   const mid = offsetPts(inner, 9), outer = offsetPts(inner, 18);
@@ -155,7 +155,7 @@ function vignetteFrame(n, id, box, img, caption) {
   o += `<path d="${poly(outer, true)}" fill="${n.paper}"/>`;
   o += `<g clip-path="url(#${id}-arch)"><rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" fill="${n.paper}"/>
         <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" fill="${n.tint1}" opacity=".35"/>
-        <image href="${img}" x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" preserveAspectRatio="none"/></g>`;
+        <image href="${img}" x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" preserveAspectRatio="none"/>${overlay}</g>`;
   o += `<path d="${poly(offsetPts(inner, 15.4), true)}${poly(offsetPts(inner, 2.6), true).replace("M", "M")}" fill="${n.tint1}" fill-rule="evenodd" opacity=".6"/>`;
   o += latheBand(mid, { w: 11.5, wave: 12, count: 6, stroke: n.primary, sw: .3 });
   o += latheBand(mid, { w: 11.5, wave: 40, count: 2, stroke: n.secondary, sw: .45 });
@@ -249,7 +249,7 @@ function fedSeal(n, id, cx, cy, r) {
   return o;
 }
 function treasurySeal(n, id, cx, cy, r) {
-  const ink = n.secondary;
+  const ink = n.sealColor || n.secondary;
   let teeth = "";
   for (let i = 0; i < 160; i++) { const a = i / 160 * TAU, rr = i % 2 ? r * .93 : r; teeth += (i ? "L" : "M") + f(cx + rr * Math.cos(a)) + " " + f(cy + rr * Math.sin(a)); }
   let o = `<path d="${teeth}Z" fill="${ink}"/><circle cx="${cx}" cy="${cy}" r="${r * .9}" fill="${n.paper}"/>`;
