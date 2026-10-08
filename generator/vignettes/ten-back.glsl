@@ -1,61 +1,66 @@
-// $10 back: "Earthrise" - the half-lit Earth over a cratered lunar horizon.
-const vec3 SUN = normalize(vec3(-.8, .35, .5));
-const vec2 EC = vec2(.98, .27);
-const float ER = .13;
+// $10 back: "Apple Park" - the ring building seen from above at an angle, its inner orchard and the hills beyond.
+const vec3 LT = normalize(vec3(-.5, .8, .35));
+const vec2 C = vec2(.7, .6);       // ring centre on screen
+const float RX = .56, RY = .25;    // outer ellipse (perspective-flattened circle)
+const float W = .085;              // ring width (in outer-radius units * RX)
 
-float horizon(float u) { return .58 + .03 * sin(u * 2.3 + .4) + .012 * noise2(vec2(u * 9., 1.)) + .004 * noise2(vec2(u * 40., 2.)); }
-
-// lunar surface height (for shading): craters as rims and bowls
-float moonH(vec2 p) {
-  float h = .02 * fbm2(p * vec2(6., 14.), 5);
-  for (int i = 0; i < 26; i++) {
-    float fi = float(i);
-    vec2 c = vec2(hash12(vec2(fi, 1.)) * 1.5, .6 + .4 * hash12(vec2(fi, 2.)));
-    float r = .02 + .09 * hash12(vec2(fi, 3.)) * (c.y - .5) * 1.6;
-    vec2 d = (p - c) / vec2(r, r * .32 * (c.y - .45) * 2.2);
-    float q = length(d);
-    h += r * (-.7 * smoothstep(1., 0., q) + .5 * exp(-pow((q - 1.) * 4., 2.)));
-  }
-  return h;
+bool tree(vec2 uv, vec2 c, float r, out float T) {
+  vec2 d = (uv - c) / r;
+  float q = dot(d, d);
+  if (q > 1.) return false;
+  vec3 n = normalize(vec3(d.x, -d.y, sqrt(1. - q)));
+  T = .78 - .5 * max(dot(n, LT), 0.) + .08 * noise2(uv * 600.);
+  return true;
 }
 
 Px paint(vec2 uv) {
-  float hz = horizon(uv.x);
-  // distant highlands along the horizon
-  float hl = hz - .035 * smoothstep(.2, .8, fbm2(vec2(uv.x * 3., 4.), 4) * .5 + .5) - .01;
-  if (uv.y > hl && uv.y <= hz) {
-    float T = .35 + .25 * smoothstep(.0, 1., fbm2(uv * vec2(30., 60.), 4)) + .2 * smoothstep(hl + .02, hl, uv.y) * 0.;
+  vec2 d = (uv - C) / vec2(RX, RY);
+  float r = length(d);
+  float ang = atan(d.y, d.x);
+  float rin = 1. - W / RX * 1.6;
+  // roof of the ring: glass canopy fins, lit on the far side, shaded near side
+  if (r < 1. && r > rin) {
+    float t = (r - rin) / (1. - rin);
+    float fins = fract(ang / 6.2832 * 260.);
+    float near = smoothstep(-.2, .9, sin(ang));          // lower half is nearer the viewer
+    float T = .18 + .12 * near + .25 * smoothstep(.85, 1., t) + .2 * smoothstep(.15, 0., t);
+    T += .18 * smoothstep(.12, .0, min(fins, 1. - fins));
+    // the facade band: visible glass wall on the near (lower) outer edge
+    return Px(T, vec3(t * (1. - rin) * RY * K() * 1.3, ang / 6.2832 * 600., (uv.x + uv.y) * K()));
+  }
+  // outer glass wall seen below the roof edge on the near side
+  vec2 dw = (uv - C - vec2(0., .035)) / vec2(RX, RY);
+  if (length(dw) < 1. && r >= 1. && uv.y > C.y) {
+    float mull = fract(atan(dw.y, dw.x) / 6.2832 * 340.);
+    float T = .55 + .3 * smoothstep(.12, 0., min(mull, 1. - mull)) - .2 * smoothstep(C.y + .2, C.y + .3, uv.y) * 0.;
+    return Px(T, vec3(uv.x * K() * 1.3, uv.y * K() * 1.2, 0.));
+  }
+  float T;
+  // the inner courtyard: orchard of trees around a pond
+  if (r <= rin) {
+    vec2 pd = (uv - C - vec2(.05, .02)) / vec2(.12, .045);
+    if (length(pd) < 1.) { float t = .22 + .2 * smoothstep(.6, 1., length(pd)); return Px(t, vec3(uv.y * K() * 1.3, uv.x * K(), 0.)); }
+    vec2 g = uv / .028;
+    vec2 cell = floor(g);
+    vec2 tc = (cell + .5 + (hash22(cell) - .5) * .2) * .028;
+    if (hash12(cell) < .62 && tree(uv, tc, .0085, T)) return Px(T, vec3(length(uv - tc) * K() * 1.4, (uv.x - uv.y) * K(), (uv.x + uv.y) * K()));
+    T = .3 + .1 * noise2(uv * vec2(80., 160.));
     return Px(T, vec3(uv.y * K() * 1.2, (uv.x * .7 + uv.y) * K(), 0.));
   }
-  if (uv.y > hz) {
-    vec2 e = vec2(.002, 0.);
-    float h0 = moonH(uv);
-    float hx = moonH(uv + e.xy) - h0, hy = moonH(uv + e.yx) - h0;
-    vec3 n = normalize(vec3(-hx / e.x * .7, hy / e.x * .7 + .9, 1.));
-    float dif = max(dot(n, SUN), 0.);
-    float z = (uv.y - hz) / (1. - hz);
-    float T = 1. - (.1 + .82 * dif) + .06 * noise2(uv * vec2(200., 400.));
-    T = mix(T, .9, smoothstep(.02, 0., uv.y - hz) * .5);
-    return Px(T, vec3((uv.y + h0 * .12) * K() * 1.2 + .2 * noise2(uv * vec2(8., 20.)), (uv.x * .7 + uv.y) * K(), (-uv.x * .7 + uv.y) * K()));
+  // surrounding landscape: lawns, curving paths and tree belts
+  if (uv.y > .2) {
+    vec2 g = uv / .03;
+    vec2 cell = floor(g);
+    vec2 tc = (cell + .5 + (hash22(cell) - .5) * .2) * .03;
+    float belt = smoothstep(.2, .55, noise2(uv * 4.5 + 3.));
+    if (hash12(cell + 9.) < belt && tree(uv, tc, .0105, T)) return Px(T, vec3(length(uv - tc) * K() * 1.4, (uv.x - uv.y) * K(), (uv.x + uv.y) * K()));
+    float path = smoothstep(.006, .002, abs(length((uv - C) / vec2(RX * 1.2, RY * 1.25)) - 1.) * .2);
+    T = .32 + .12 * fbm2(uv * vec2(10., 20.), 4) - .25 * path + .15 * smoothstep(.45, .2, uv.y);
+    return Px(T, vec3(uv.y * K() * 1.15 + .3 * noise2(uv * vec2(6., 14.)), (uv.x * .7 + uv.y) * K(), (-uv.x * .7 + uv.y) * K()));
   }
-  // the Earth: lit from the left, with clouds and continents
-  vec2 d = (uv - EC) / ER;
-  float q = dot(d, d);
-  if (q < 1.) {
-    vec3 n = vec3(d.x, -d.y, sqrt(1. - q));
-    float dif = max(dot(n, SUN), 0.);
-    float land = smoothstep(.05, .2, fbm2(n.xy * 3. + vec2(1.3, 2.), 5));
-    float cloud = smoothstep(.1, .45, fbm2(vec2(n.x * 4. + n.y, n.y * 9.) + 7., 5));
-    float alb = .55 + .15 * land + .45 * cloud;
-    float T = 1. - alb * (.04 + 1.25 * dif);
-    T = clamp(T, .05, .97);
-    float lat = asin(n.y) * ER * K() * 1.4;
-    float lon = atan(n.x, n.z) * ER * K() * .9 * sqrt(1. - n.y * n.y);
-    return Px(T, vec3(lat, lon, (uv.x + uv.y) * K()));
-  }
-  // black sky, stars, a faint glow round the Earth
-  float glow = smoothstep(ER * 1.25, ER, length(uv - EC));
-  float star = step(.993, hash12(floor(uv * 260.))) * smoothstep(.3, .15, length(fract(uv * 260.) - .5));
-  float T = .93 - .25 * glow - .9 * star;
-  return Px(T, vec3(uv.y * K() * 1.15, (uv.x * .6 + uv.y) * K(), (-uv.x * .6 + uv.y) * K()));
+  // distant hills and sky
+  float hill = .2 - .07 * exp(-pow((uv.x - .3) / .35, 2.)) - .05 * exp(-pow((uv.x - 1.2) / .25, 2.)) + .008 * noise2(vec2(uv.x * 12., 2.));
+  if (uv.y > hill) return Px(.2 + .12 * fbm2(uv * vec2(20., 40.), 4), vec3(uv.y * K() * 1.15, (uv.x * .7 + uv.y) * K(), 0.));
+  T = mix(.3, .08, smoothstep(.0, .2, uv.y));
+  return Px(T, vec3(uv.y * K() * 1.15 + .2 * sin(uv.x * 7.), (uv.x * .55 + uv.y) * K(), 0.));
 }
