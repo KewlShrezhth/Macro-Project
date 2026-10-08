@@ -1,0 +1,24 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>html,body{margin:0;background:#fff} #stage svg{display:block}</style>
+<div style="position:absolute;left:-9999px;top:0">
+  <span style="font:600 20px Cinzel">A</span><span style="font:700 20px Cinzel">A</span><span style="font:900 20px Cinzel">A</span>
+  <span style="font:900 20px 'Playfair Display'">1</span><span style="font:700 20px 'Old Standard TT'">A</span>
+  <span style="font:italic 20px 'Old Standard TT'">A</span><span style="font:20px 'Pinyon Script'">A</span>
+  <span style="font:600 20px 'IBM Plex Mono'">1</span>
+</div>
+<div id="stage"></div>
+<script src="design/lib.js"></script>
+<script src="design/parts.js"></script>
+<script src="design/notes.js"></script>
+<script>
+window.compose = async (v, side, imgs) => {
+  await document.fonts.ready;
+  for (const u of Object.values(imgs)) { const im = new Image(); im.src = u; await im.decode(); }
+  const n = DENOMS[v];
+  document.getElementById("stage").innerHTML = side === "front" ? front(n, imgs.front) : back(n, imgs.back, imgs.front);
+  await new Promise(r => setTimeout(r, 400));
+  return true;
+};
+</script>
