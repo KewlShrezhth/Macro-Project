@@ -113,25 +113,26 @@ function back(n, img, frontImg, memImg) {
 
 /* Annotated sheet: the note with labelled call-outs in a margin. Feature names are placeholders until the Part 1 answers are supplied. */
 const FEATURES = {
-  // label: [x in note units, "top" | "bottom"]
+  // label: [x in note units, "top" | "bottom"]; desc is the one-line explanation under the name
   front: n => [
-    { code: "A1", title: "Accessibility feature 1", name: "Large high-contrast numerals", at: [132, 180], label: [200, "top"] },
-    { code: "\u2605", title: "Memorial", name: "Twin Towers & One WTC", at: [392, 300], label: [540, "top"], fixed: true },
-    { code: "S2", title: "Security feature 2", name: "Security thread", at: [frontThread(n), 330], label: [880, "top"], exact: true },
-    { code: "S3", title: "Security feature 3", name: "Watermark window", at: [1168, 240], label: [1360, "top"] },
-    { code: "A2", title: "Accessibility feature 2", name: "Tactile raised dots", at: [80, 400], label: [200, "bottom"] },
-    { code: "\u2014", title: "Marking", name: "SPECIMEN \u00b7 class project", at: [1168, 576], label: [1000, "bottom"], fixed: true },
-    { code: "S1", title: "Security feature 1", name: "Colour-shifting numeral", at: [1450, 570], label: [1380, "bottom"] },
+    { code: "A1", title: "Accessibility feature 1", name: "Large high-contrast numerals", desc: "Big numbers in several places", at: [132, 180], label: [200, "top"] },
+    { code: "\u2605", title: "Extra feature", name: "Twin Towers & One WTC memorial", desc: "Shared design on every note", at: [392, 300], label: [560, "top"] },
+    { code: "S2", title: "Security feature 2", name: "Security thread", desc: "Woven in, reads \"USA 1\", moves by value", at: [frontThread(n), 330], label: [900, "top"], exact: true },
+    { code: "S3", title: "Security feature 3", name: "Watermark window", desc: "Portrait appears when held to light", at: [1168, 240], label: [1360, "top"] },
+    { code: "A2", title: "Accessibility feature 2", name: "Tactile raised dots", desc: "1 dot = $1, up to 6 dots = $100", at: [80, 400], label: [200, "bottom"] },
+    { code: "+", title: "Extra feature", name: "Microprinting", desc: "Tiny border text that blurs if copied", at: [600, 600], label: [590, "bottom"], exact: true },
+    { code: "+", title: "Extra feature", name: "Different length per value", desc: "$1 is 156 mm, +7 mm per step", at: [1000, 640], label: [1000, "bottom"], exact: true },
+    { code: "S1", title: "Security feature 1", name: "Color-shifting numeral", desc: "Copper to green when tilted", at: [1450, 570], label: [1380, "bottom"] },
   ],
   back: n => [
-    { code: "SN", title: "Serial numbers", name: "Top left and lower right", at: [300, 166], label: [200, "top"], fixed: true },
-    { code: "S3", title: "Security feature 3", name: "Watermark (seen from back)", at: [392, 240], label: [540, "top"] },
-    { code: "S2", title: "Security feature 2", name: "Thread (seen from back)", at: [mx(frontThread(n)), 330], label: [880, "top"], exact: true },
-    { code: "A1", title: "Accessibility feature 1", name: "Large high-contrast numeral", at: [1232, 260], label: [1300, "top"] },
-    { code: "FR", title: "Federal Reserve seal", name: `District ${n.district}, ${n.city.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}`, at: [392, 532], label: [200, "bottom"], fixed: true },
-    { code: "S4", title: "Additional security feature", name: "See-through register", at: [392, 412], label: [540, "bottom"] },
-    { code: "TS", title: "Treasury seal", name: "Lower right, every note", at: [1232, 518], label: [1080, "bottom"], fixed: true },
-    { code: "A2", title: "Accessibility feature 2", name: "Tactile raised dots", at: [1480, 400], label: [1420, "bottom"] },
+    { code: "SN", title: "Serial numbers", name: "Top left and lower right", desc: "Unique number on every note", at: [300, 166], label: [200, "top"] },
+    { code: "S3", title: "Security feature 3", name: "Watermark (seen from back)", desc: "Visible from both sides", at: [392, 240], label: [560, "top"] },
+    { code: "S2", title: "Security feature 2", name: "Thread (seen from back)", desc: "Same thread, through the paper", at: [mx(frontThread(n)), 330], label: [900, "top"], exact: true },
+    { code: "A1", title: "Accessibility feature 1", name: "Large high-contrast numeral", desc: "Dark number on a light panel", at: [1232, 260], label: [1300, "top"] },
+    { code: "FR", title: "Federal Reserve seal", name: `District ${n.district}, ${n.city.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}`, desc: "Issuing Federal Reserve Bank", at: [366, 532], label: [200, "bottom"] },
+    { code: "+", title: "Extra security feature", name: "See-through register", desc: "Front and back marks line up in light", at: [412, 412], label: [560, "bottom"] },
+    { code: "TS", title: "Treasury seal", name: "Department of the Treasury", desc: "Same spot on every note", at: [1232, 518], label: [1080, "bottom"] },
+    { code: "A2", title: "Accessibility feature 2", name: "Tactile raised dots", desc: "Felt through from the front", at: [1480, 400], label: [1420, "bottom"] },
   ],
 };
 function annotated(n, side, noteSvg) {
@@ -152,9 +153,8 @@ function annotated(n, side, noteSvg) {
     o += `<g transform="translate(${tx} ${ty})">
       <text x="0" y="0" text-anchor="middle" style="font:700 15px 'IBM Plex Mono', monospace" fill="#b3212b">${ft.code} · ${esc(ft.title)}</text>
       <text x="0" y="19" text-anchor="middle" style="font:700 15px 'Old Standard TT', serif" fill="#1d1f24">${esc(ft.name)}</text>
-      ${ft.fixed ? "" : `<text x="0" y="36" text-anchor="middle" style="font:italic 12.5px 'Old Standard TT', serif" fill="#6a6f78">Placeholder: replace with Part 1 answer</text>`}
+      ${ft.desc ? `<text x="0" y="36" text-anchor="middle" style="font:italic 12.5px 'Old Standard TT', serif" fill="#4d525c">${esc(ft.desc)}</text>` : ""}
     </g>`;
   }
-  o += `<text x="${WW / 2}" y="${HH - 16}" text-anchor="middle" style="font:700 13px 'IBM Plex Mono', monospace" fill="#6a6f78">$${n.v} · ${side.toUpperCase()} · ${esc(n.theme.toUpperCase())}</text>`;
   return o + "</svg>";
 }
