@@ -24,7 +24,7 @@ const DENOMS = {
        plate: "#2e1519", primary: "#6e2232", secondary: "#a88645", tint1: "#ecd7d6", tint2: "#efe5cf", paper: "#f6f2ea",
        pattern: "chevron", patternOpts: { gap: 5.5 }, serialInk: "#7e5f25", sealColor: "#8f6f30", ovi: ["#6a2a1f", "#b7874a", "#8c9a55", "#2f5e45"],
        sealInk: "#1f1718", district: 5, letter: "E", city: "RICHMOND", serial: "SE 70365128 E", plateNo: "B 11", check: "E 6",
-       thread: 588, dots: 5, front: { scene: "fifty-front", caption: "DRAKE" }, back: { scene: "fifty-back", caption: "THE HALL OF THE PEOPLE", overlay: (n, v) => plainText("WE THE PEOPLE", v.x0 + .7 * (v.y1 - v.y0), v.y0 + .2905 * (v.y1 - v.y0), `700 14px ${FONT.caps}`, n.plate, { ls: 9 }) } },
+       thread: 588, dots: 5, front: { scene: "fifty-front", caption: "DRAKE" }, back: { scene: "fifty-back", caption: "TAKE CARE \u00b7 2011"} },
   100: { v: 100, word1: "ONE HUNDRED", words: "ONE HUNDRED DOLLARS", theme: "Unity",
        plate: "#141b30", primary: "#23345f", secondary: "#8e99a8", tint1: "#d7dceb", tint2: "#e4e7ec", paper: "#f3f3f1",
        pattern: "flow", patternOpts: { gap: 5 }, serialInk: "#2f4a78", sealColor: "#5d6878", ovi: ["#5e3a1c", "#b88c52", "#6e8f86", "#26505f"],
