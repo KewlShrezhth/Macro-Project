@@ -18,6 +18,7 @@ window.compose = async (v, side, imgs, annotate) => {
   await document.fonts.ready;
   for (const u of Object.values(imgs)) { const im = new Image(); im.src = u; await im.decode(); }
   const n = DENOMS[v];
+  W = noteWidth(v);
   const svg = side === "front" ? front(n, imgs.front, imgs.memorial) : back(n, imgs.back, imgs.front, imgs.memorial);
   document.getElementById("stage").innerHTML = annotate ? annotated(n, side, svg) : svg;
   await new Promise(r => setTimeout(r, 400));

@@ -46,7 +46,8 @@ const INK = { 1: "#232a27", 5: "#2a2633", 10: "#33231a", 20: "#132b29", 50: "#2e
       imgs[side] = "data:image/png;base64," + fs.readFileSync(out).toString("base64");
     }
     if (!imgs.front || !imgs.back) continue;
-    const ctx = await browser.newContext({ viewport: { width: 1560, height: 660 }, deviceScaleFactor: SCALE });
+    const NW = 1560 + 70 * [1, 5, 10, 20, 50, 100].indexOf(v);   // note length grows 7 mm per denomination
+    const ctx = await browser.newContext({ viewport: { width: NW, height: 660 }, deviceScaleFactor: SCALE });
     const page = await ctx.newPage();
     page.on("pageerror", e => console.error("page error:", e.message));
     await page.goto("file://" + path.join(__dirname, "note.html"));
@@ -55,12 +56,12 @@ const INK = { 1: "#232a27", 5: "#2a2633", 10: "#33231a", 20: "#132b29", 50: "#2e
       const file = path.join(OUT, `${v}-dollar-${side}.png`);
       await page.locator("#stage svg").screenshot({ path: file });
       console.log("wrote", path.relative(ROOT, file));
-      await page.setViewportSize({ width: 1780, height: 920 });
+      await page.setViewportSize({ width: NW + 220, height: 920 });
       await page.evaluate(({ v, side, imgs }) => window.compose(v, side, imgs, true), { v, side, imgs });
       const afile = path.join(OUT, "annotated", `${v}-dollar-${side}-annotated.png`);
       fs.mkdirSync(path.dirname(afile), { recursive: true });
       await page.locator("#stage svg").screenshot({ path: afile, scale: "css" });
-      await page.setViewportSize({ width: 1560, height: 660 });
+      await page.setViewportSize({ width: NW, height: 660 });
       console.log("wrote", path.relative(ROOT, afile));
     }
     await ctx.close();

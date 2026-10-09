@@ -1,5 +1,7 @@
 /* Note components. Each takes the denomination config `n` (colours, words) and returns SVG markup. */
-const W = 1560, H = 660;
+// Note size in units of 0.1 mm: every note is 66 mm tall; length grows 7 mm per denomination (set per note).
+const BASE_W = 1560, H = 660;
+let W = BASE_W;
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 const FONT = {
   caps: "Cinzel, serif",

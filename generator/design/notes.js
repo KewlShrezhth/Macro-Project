@@ -44,63 +44,67 @@ const G = {
   head: 128,
 };
 const mx = x => W - x;
+// Lengths follow the Australian scheme cited in Part 1: 156 mm for $1, then +7 mm per step (191 mm for $100).
+const ORDER = [1, 5, 10, 20, 50, 100];
+const noteWidth = v => BASE_W + 70 * ORDER.indexOf(v);
+// Extra length is shared out between the open spaces: centre items move by half of it, right-hand items by all of it.
+const shift = (k, inner) => k ? `<g transform="translate(${f(k)} 0)">${inner}</g>` : inner;
+const frontThread = n => n.thread + (W - BASE_W) * (n.thread < 780 ? .25 : .75);
 const svgOpen = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`;
 function headline(n, id) { return slabText(n, id, "THE UNITED STATES OF AMERICA", W / 2, G.head, 46, 1010, { depth: 3 }); }
 
 function front(n, img, memImg) {
-  const id = "f" + n.v, s = String(n.v);
+  const id = "f" + n.v, s = String(n.v), d = W - BASE_W;
   let o = svgOpen() + defs(n, id);
   o += paperLayer(n, id);
-  o += backgroundLayer(n, id, [{ type: "ellipse", ...G.wm }]);
-  o += securityThread(n, n.thread, false);
+  o += backgroundLayer(n, id, [{ type: "ellipse", ...G.wm, cx: G.wm.cx + d }]);
+  o += securityThread(n, frontThread(n), false);
   o += border(n, id, "FEDERAL RESERVE NOTE", null);
   o += headline(n, id);
   o += plainText("THIS NOTE IS LEGAL TENDER", G.mem.cx, 162, `700 9px ${FONT.small}`, n.plate, { ls: 1.8 });
   o += plainText("FOR ALL DEBTS, PUBLIC AND PRIVATE", G.mem.cx, 174, `700 9px ${FONT.small}`, n.plate, { ls: 1.8 });
   o += memorial(n, id, G.mem.cx, G.mem.cy, G.mem.r, memImg);
-  o += portraitOval(n, id, G.oval.cx, G.oval.cy, G.oval.rx, G.oval.ry, img, n.front.caption);
-  o += plainText("SERIES", 1036, 506, `700 8px ${FONT.small}`, n.plate, { ls: 1.5 }) + plainText("2026", 1036, 517, `700 10px ${FONT.small}`, n.plate, { ls: 1.5 });
-  o += signature(n, G.mem.cx, 518, ...SIGS[0]) + signature(n, G.wm.cx, 518, ...SIGS[1]);
+  o += shift(d / 2, portraitOval(n, id, G.oval.cx, G.oval.cy, G.oval.rx, G.oval.ry, img, n.front.caption));
+  o += signature(n, G.mem.cx, 518, ...SIGS[0]);
+  o += shift(d, plainText("SERIES", 1036, 506, `700 8px ${FONT.small}`, n.plate, { ls: 1.5 }) + plainText("2026", 1036, 517, `700 10px ${FONT.small}`, n.plate, { ls: 1.5 }) + signature(n, G.wm.cx, 518, ...SIGS[1]));
   o += tactileStrip(n, id, 80, 330, 470);
-  o += watermarkSurround(n, G.wm.cx, G.wm.cy, G.wm.rx, G.wm.ry);
-  o += watermarkWindow(n, id, G.wm.cx, G.wm.cy, G.wm.rx, G.wm.ry, img, false);
-  o += register(n, G.reg.cx, G.reg.cy, G.reg.r, false);
+  o += shift(d, watermarkSurround(n, G.wm.cx, G.wm.cy, G.wm.rx, G.wm.ry) + watermarkWindow(n, id, G.wm.cx, G.wm.cy, G.wm.rx, G.wm.ry, img, false) + register(n, G.reg.cx, G.reg.cy, G.reg.r, false));
   o += plainText(n.check, 214, 210, `700 11px ${FONT.small}`, n.plate, { anchor: "start" });
-  o += plainText(n.plateNo, 1346, 210, `700 11px ${FONT.small}`, n.plate, { anchor: "end" });
+  o += shift(d, plainText(n.plateNo, 1346, 210, `700 11px ${FONT.small}`, n.plate, { anchor: "end" }));
   o += tallCounter(n, id, 70, 66, 124, 228, false) + tallCounter(n, id, W - 194, 66, 124, 228, true);
   o += roundCounter(n, id, 128, H - 128, 50, false);
-  o += fillers(n, [[562, 232, 34], [998, 232, 34], [1318, 470, 46], [272, 560, 18], [998, 470, 30], [562, 470, 30]]);
-  o += oviNumeral(n, id, 1488, 600, s.length === 3 ? 92 : 118);
+  o += fillers(n, [[272, 560, 18]]) + shift(d / 4, fillers(n, [[562, 232, 34], [562, 470, 30]]));
+  o += shift(d * .75, fillers(n, [[998, 232, 34], [998, 470, 30]])) + shift(d, fillers(n, [[1318, 470, 46]]));
+  o += shift(d, oviNumeral(n, id, 1488, 600, s.length === 3 ? 92 : 118));
   o += banner(n, id, n.words);
-  o += specimen(n, G.wm.cx, 576);
+  o += shift(d, specimen(n, G.wm.cx, 576));
   return o + "</svg>";
 }
 
 function back(n, img, frontImg, memImg) {
-  const id = "b" + n.v, s = String(n.v);
+  const id = "b" + n.v, s = String(n.v), d = W - BASE_W;
   const v = G.vig;
   const panel = { x: 1132, y: 150, w: 200, h: 290 };
-  const wmx = mx(G.wm.cx);
+  const wmx = BASE_W - G.wm.cx;   // the front's watermark (moved right by d) lands here, seen through the paper
   let o = svgOpen() + defs(n, id);
   o += paperLayer(n, id);
-  o += backgroundLayer(n, id, [{ type: "ellipse", ...G.wm, cx: wmx }, { type: "rect", x: panel.x - 20, y: panel.y - 10, w: panel.w + 40, h: panel.h }]);
-  o += securityThread(n, mx(n.thread), true);
+  o += backgroundLayer(n, id, [{ type: "ellipse", ...G.wm, cx: wmx }, { type: "rect", x: panel.x - 20 + d, y: panel.y - 10, w: panel.w + 40, h: panel.h }]);
+  o += securityThread(n, mx(frontThread(n)), true);
   o += border(n, id, "E PLURIBUS UNUM", null);
   o += headline(n, id);
-  o += vignetteFrame(n, id, v, img, n.back.caption, n.back.overlay ? n.back.overlay(n, v) : "");
-  o += spray(n, id, [v.x0 - 10, v.y1 - 10], 150, 60, 3, 32, 12, true) + spray(n, id, [v.x1 + 10, v.y1 - 10], 30, 60, 3, 32, 12);
-  o += knot(n, v.x0 - 9, v.ys + 2, 15) + knot(n, v.x1 + 9, v.ys + 2, 15);
+  o += shift(d / 2, vignetteFrame(n, id, v, img, n.back.caption, n.back.overlay ? n.back.overlay(n, v) : "")
+    + spray(n, id, [v.x0 - 10, v.y1 - 10], 150, 60, 3, 32, 12, true) + spray(n, id, [v.x1 + 10, v.y1 - 10], 30, 60, 3, 32, 12)
+    + knot(n, v.x0 - 9, v.ys + 2, 15) + knot(n, v.x1 + 9, v.ys + 2, 15));
   o += watermarkSurround(n, wmx, G.wm.cy, G.wm.rx, G.wm.ry);
   o += watermarkWindow(n, id, wmx, G.wm.cy, G.wm.rx, G.wm.ry, frontImg, true);
   o += register(n, wmx, G.reg.cy, G.reg.r, true);
   o += fillers(n, [[262, 440, 32], [262, 272, 22], [1232, 590, 0]].filter(p => p[2]));
   o += fedSeal(n, id, wmx, 532, 44);
   o += tallCounter(n, id, 70, 66, 124, 228, false) + tallCounter(n, id, W - 194, 66, 124, 228, true);
-  o += numeralPanel(n, id, panel, s, n.word1);
-  o += treasurySeal(n, id, panel.x + panel.w / 2, 518, 42);
+  o += shift(d, numeralPanel(n, id, panel, s, n.word1) + treasurySeal(n, id, panel.x + panel.w / 2, 518, 42)
+    + plainText(n.serial, panel.x + panel.w / 2, 588, `600 17px ${FONT.mono}`, n.serialInk || n.secondary, { ls: 1.5 }));
   o += tactileStrip(n, id, mx(80), 330, 470);
   o += plainText(n.serial, 214, 172, `600 17px ${FONT.mono}`, n.serialInk || n.secondary, { anchor: "start", ls: 1.5 });
-  o += plainText(n.serial, panel.x + panel.w / 2, 588, `600 17px ${FONT.mono}`, n.serialInk || n.secondary, { ls: 1.5 });
   o += roundCounter(n, id, 128, H - 128, 50, false) + roundCounter(n, id, W - 128, H - 128, 50, true);
   o += banner(n, id, n.words);
   o += specimen(n, wmx, 458);
@@ -113,7 +117,7 @@ const FEATURES = {
   front: n => [
     { code: "A1", title: "Accessibility feature 1", name: "Large high-contrast numerals", at: [132, 180], label: [200, "top"] },
     { code: "\u2605", title: "Memorial", name: "Twin Towers & One WTC", at: [392, 300], label: [540, "top"], fixed: true },
-    { code: "S2", title: "Security feature 2", name: "Security thread", at: [n.thread, 330], label: [880, "top"] },
+    { code: "S2", title: "Security feature 2", name: "Security thread", at: [frontThread(n), 330], label: [880, "top"], exact: true },
     { code: "S3", title: "Security feature 3", name: "Watermark window", at: [1168, 240], label: [1360, "top"] },
     { code: "A2", title: "Accessibility feature 2", name: "Tactile raised dots", at: [80, 400], label: [200, "bottom"] },
     { code: "\u2014", title: "Marking", name: "SPECIMEN \u00b7 class project", at: [1168, 576], label: [1000, "bottom"], fixed: true },
@@ -122,7 +126,7 @@ const FEATURES = {
   back: n => [
     { code: "SN", title: "Serial numbers", name: "Top left and lower right", at: [300, 166], label: [200, "top"], fixed: true },
     { code: "S3", title: "Security feature 3", name: "Watermark (seen from back)", at: [392, 240], label: [540, "top"] },
-    { code: "S2", title: "Security feature 2", name: "Thread (seen from back)", at: [mx(n.thread), 330], label: [880, "top"] },
+    { code: "S2", title: "Security feature 2", name: "Thread (seen from back)", at: [mx(frontThread(n)), 330], label: [880, "top"], exact: true },
     { code: "A1", title: "Accessibility feature 1", name: "Large high-contrast numeral", at: [1232, 260], label: [1300, "top"] },
     { code: "FR", title: "Federal Reserve seal", name: `District ${n.district}, ${n.city.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}`, at: [392, 532], label: [200, "bottom"], fixed: true },
     { code: "S4", title: "Additional security feature", name: "See-through register", at: [392, 412], label: [540, "bottom"] },
@@ -136,7 +140,9 @@ function annotated(n, side, noteSvg) {
   let o = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WW} ${HH}" width="${WW}" height="${HH}">
     <rect width="${WW}" height="${HH}" fill="#ffffff"/>
     <g transform="translate(${M.x} ${M.y})">${inner}</g>`;
-  for (const ft of FEATURES[side](n)) {
+  const d = W - BASE_W, X = x => x < 470 ? x : x > 1090 ? x + d : x + d / 2;
+  for (const raw of FEATURES[side](n)) {
+    const ft = { ...raw, at: [raw.exact ? raw.at[0] : X(raw.at[0]), raw.at[1]], label: [X(raw.label[0]), raw.label[1]] };
     const top = ft.label[1] === "top";
     const [ax, ay] = [ft.at[0] + M.x, ft.at[1] + M.y], lx = ft.label[0] + M.x, ly = top ? 52 : HH - 66;
     const ey = top ? ly + 44 : ly - 24;
