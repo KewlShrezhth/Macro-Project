@@ -9,7 +9,7 @@ const DENOMS = {
        plate: "#2a2633", primary: "#66588a", secondary: "#4d5563", tint1: "#e0daea", tint2: "#e3e5ea", paper: "#f4f3f2",
        pattern: "rings", patternOpts: { gap: 5.5, centers: [[420, 330], [1180, 300]] }, ovi: ["#6a3f1a", "#b98a4e", "#7d8f55", "#2f5e45"],
        sealInk: "#1e1d22", district: 10, letter: "J", city: "KANSAS CITY", serial: "SJ 25930417 B", plateNo: "C 7", check: "J 2",
-       thread: 1012, dots: 2, front: { scene: "five-front", caption: "EFRAIM DIVEROLI \u00b7 WAR DOGS" }, back: { scene: "five-back", caption: "THE COLORADO RIVER" } },
+       thread: 1012, dots: 2, front: { scene: "five-front", caption: "EFRAIM DIVEROLI \u00b7 WAR DOGS" }, back: { scene: "five-back", caption: "WAR DOGS \u00b7 2016" } },
   10: { v: 10, word1: "TEN", words: "TEN DOLLARS", theme: "Innovation",
        plate: "#33231a", primary: "#a05f34", secondary: "#c06a2b", tint1: "#f1dcc6", tint2: "#efe2d2", paper: "#f6f2ea",
        pattern: "sunburst", patternOpts: { center: [780, 380] }, ovi: ["#5a3a14", "#c4954d", "#7f9a5a", "#2f6248"],

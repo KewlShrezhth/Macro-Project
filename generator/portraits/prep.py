@@ -95,6 +95,7 @@ jobs_src = Image.open(os.path.join(SRC, "jobs.png"))
 outputs = {
     "one-front": oval("washington-bill.png", 341, 163, 63, 81, .7),
     "one-back": scene("delaware.png", (380, 0, 422)),
+    "five-back": scene("wardogs-scene.png", (349, 0, 420), gamma=.75),
     "five-front": person("hill.png", (186, 74, 250)),
     "ten-front": person("jobs.png", (180, 0, 411), not_white=True),
     "hundred-front": person("dicaprio.png", (229, 138, 330), keep_x=(110, 340)),
