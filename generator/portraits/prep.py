@@ -7,7 +7,8 @@ from ai_edge_litert.interpreter import Interpreter
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC, OUT = os.path.join(HERE, "src"), HERE
 MODEL = os.path.join(HERE, "..", "models", "selfie_multiclass.tflite")
-ASPECT = 584 / 418
+ASPECT = 584 / 418      # landscape scenes (back vignettes)
+OVAL = 296 / 370        # portrait ovals on the fronts
 OUT_H = 900
 
 seg = Interpreter(model_path=MODEL); seg.allocate_tensors()
@@ -26,16 +27,17 @@ def person_mask(img):
     m = Image.fromarray((p * 255).astype("uint8")).resize((S, S), Image.BILINEAR).crop((ox, oy, ox + img.width, oy + img.height))
     return m.filter(ImageFilter.GaussianBlur(1.2))
 
-def backdrop(w, h, centre=(.5, .38)):
+def backdrop(w, h, centre=(.5, .3)):
+    """Engraver's portrait ground: mid-dark, a little lighter behind the head."""
     y, x = np.mgrid[0:h, 0:w][0] / h, np.mgrid[0:h, 0:w][1] / h
     d = np.sqrt((x - centre[0] * w / h) ** 2 + (y - centre[1]) ** 2)
-    lum = np.clip(.84 - .55 * d, .3, .84)
+    lum = np.clip(.62 - .45 * d, .3, .62)
     return Image.fromarray((lum * 255).astype("uint8"))
 
-def frame(img, box, pad_bg=None):
-    """box = (cx, top, height) in source px; returns crop at ASPECT, padding with pad_bg colour outside the source."""
+def frame(img, box, pad_bg=None, aspect=ASPECT):
+    """box = (cx, top, height) in source px; returns crop at the given aspect, padding with pad_bg outside the source."""
     cx, top, hgt = box
-    wid = hgt * ASPECT
+    wid = hgt * aspect
     x0, y0 = int(round(cx - wid / 2)), int(round(top))
     canvas = Image.new(img.mode, (int(round(wid)), int(round(hgt))), pad_bg)
     canvas.paste(img, (-x0, -y0))
@@ -64,8 +66,9 @@ def person(name, box, blur=0.0, centre=(.5, .38), dark_in=None, not_white=False,
         m = Image.fromarray(np.maximum(np.asarray(m), np.asarray(e)))
     if keep_x:   # drop stray background pieces outside the sitter's horizontal span
         ma = np.asarray(m).copy(); ma[:, :keep_x[0]] = 0; ma[:, keep_x[1]:] = 0; m = Image.fromarray(ma)
-    g, m = frame(g, box, 0), frame(m, box, 0)
-    g, m = g.resize((int(OUT_H * ASPECT), OUT_H), Image.LANCZOS), m.resize((int(OUT_H * ASPECT), OUT_H), Image.LANCZOS)
+    g, m = frame(g, box, 0, OVAL), frame(m, box, 0, OVAL)
+    size = (int(OUT_H * OVAL), OUT_H)
+    g, m = g.resize(size, Image.LANCZOS), m.resize(size, Image.LANCZOS)
     g = tone(g)
     out = Image.composite(g, backdrop(*g.size, centre), m)
     return out
@@ -73,12 +76,12 @@ def person(name, box, blur=0.0, centre=(.5, .38), dark_in=None, not_white=False,
 def oval(name, cx, cy, rx, ry, blur):
     """Cut an oval engraving out of a scan and set it centred on the backdrop."""
     img = Image.open(os.path.join(SRC, name)).convert("L").filter(ImageFilter.GaussianBlur(blur))
-    hgt = ry * 2 * 1.08
-    g = frame(img, (cx, cy - hgt / 2, hgt), 0)
+    hgt = ry * 2 * 1.02
+    g = frame(img, (cx, cy - hgt / 2, hgt), 0, OVAL)
     m = Image.new("L", g.size, 0)
     ImageDraw.Draw(m).ellipse([g.width / 2 - rx, g.height / 2 - ry, g.width / 2 + rx, g.height / 2 + ry], fill=255)
     m = m.filter(ImageFilter.GaussianBlur(3))
-    size = (int(OUT_H * ASPECT), OUT_H)
+    size = (int(OUT_H * OVAL), OUT_H)
     g, m = tone(g.resize(size, Image.LANCZOS), .6), m.resize(size, Image.LANCZOS)
     return Image.composite(g, backdrop(*size, (.5, .5)), m)
 
@@ -90,12 +93,12 @@ def scene(name, box, blur=.6, gamma=.6):
 
 jobs_src = Image.open(os.path.join(SRC, "jobs.png"))
 outputs = {
-    "one-front": oval("washington-bill.png", 340, 158, 66, 84, 1.3),
+    "one-front": oval("washington-bill.png", 341, 163, 63, 81, .7),
     "one-back": scene("delaware.png", (380, 0, 422)),
-    "five-front": person("hill.png", (178, 72, 245)),
-    "ten-front": person("jobs.png", (180, 0, 330), not_white=True),
-    "hundred-front": person("dicaprio.png", (229, 140, 330), keep_x=(110, 340)),
-    "fifty-front": person("drake.png", (365, 0, 400), dark_in=[(300, 185), (250, 210), (228, 300), (222, 452), (482, 452), (472, 300), (452, 210), (405, 185)], keep_x=(215, 495)),
+    "five-front": person("hill.png", (186, 74, 250)),
+    "ten-front": person("jobs.png", (180, 0, 411), not_white=True),
+    "hundred-front": person("dicaprio.png", (229, 138, 330), keep_x=(110, 340)),
+    "fifty-front": person("drake.png", (370, 15, 370), dark_in=[(300, 185), (250, 210), (228, 300), (222, 452), (482, 452), (472, 300), (452, 210), (405, 185)], keep_x=(215, 495)),
 }
 for k, im in outputs.items():
     im.save(os.path.join(OUT, k + ".png")); print("prepared", k, im.size)

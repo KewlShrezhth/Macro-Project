@@ -12,6 +12,9 @@ const FONT = {
 function defs(n, id) {
   return `<defs>
     <pattern id="${id}-hatch" width="6" height="1.45" patternUnits="userSpaceOnUse"><rect width="6" height=".78" fill="${n.plate}"/></pattern>
+    <pattern id="${id}-leafhatch" width="2.4" height="2.4" patternUnits="userSpaceOnUse" patternTransform="rotate(28)"><rect width="2.4" height=".75" fill="${n.plate}"/></pattern>
+    <pattern id="${id}-xhatch" width="2.1" height="2.1" patternUnits="userSpaceOnUse" patternTransform="rotate(-50)"><rect width="2.1" height=".8" fill="${n.plate}"/></pattern>
+    <pattern id="${id}-paperhatch" width="2.6" height="2.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.6" height=".7" fill="${n.paper}" opacity=".8"/></pattern>
     <pattern id="${id}-hatch2" width="6" height="1.2" patternUnits="userSpaceOnUse"><rect width="6" height=".55" fill="${n.primary}"/></pattern>
     <pattern id="${id}-ovitex" width="2.2" height="2.2" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><rect width="2.2" height=".7" fill="rgba(255,240,215,.35)"/></pattern>
     <linearGradient id="${id}-iris" x1="0" y1="0" x2="1" y2="0">
@@ -83,7 +86,7 @@ function border(n, id, topWord, bottomWord) {
     o += rings(x + 16, y + 16, [15, 3], n.paper, .6);
   }
   o += cartouche(n, W / 2, 34, topWord, `700 11.5px ${FONT.caps}`, 5, 15);
-  o += cartouche(n, W / 2, H - 34, bottomWord, `700 15px ${FONT.caps}`, 5, 17);
+  if (bottomWord) o += cartouche(n, W / 2, H - 34, bottomWord, `700 15px ${FONT.caps}`, 5, 17);
   return o;
 }
 
@@ -289,10 +292,10 @@ function specimen(n, x, y) {
 function numeralPanel(n, id, p, s, word) {
   // the back's high-contrast numeral (A1): solid plate ink on clear paper, no box, framed by lathe scrolls
   const cx = p.x + p.w / 2, cy = p.y + p.h / 2;
-  const fs = s.length === 1 ? 270 : s.length === 2 ? 196 : 136;
+  const fs = s.length === 1 ? 230 : s.length === 2 ? 150 : 104;
   let o = `<circle cx="${cx}" cy="${cy - 20}" r="${p.w * .58}" fill="${n.primary}"/><circle cx="${cx}" cy="${cy - 20}" r="${p.w * .5}" fill="${n.paper}"/>${rosetteRing(cx, cy - 20, p.w * .5 + 1, p.w * .58 - 1, { lobes: 70, count: 7, stroke: n.paper, sw: .38 })}`;
   o += rings(cx, cy - 20, [p.w * .5 - 1], n.plate, .35);
-  o += plainText(s, cx, p.y + 210, `900 ${fs}px ${FONT.num}`, n.plate);
+  o += plainText(s, cx, cy - 20 + fs * .36, `900 ${fs}px ${FONT.num}`, n.plate);
   const font = `700 20px ${FONT.caps}`, w = measure(word, font, 6) + 50;
   o += `<rect x="${f(cx - w / 2)}" y="${p.y + 240}" width="${f(w)}" height="30" rx="3" fill="${n.plate}"/>`;
   o += `<rect x="${f(cx - w / 2 + 3)}" y="${p.y + 243}" width="${f(w - 6)}" height="24" rx="2" fill="none" stroke="${n.paper}" stroke-width=".4"/>`;

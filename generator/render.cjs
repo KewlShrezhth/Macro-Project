@@ -22,6 +22,14 @@ const INK = { 1: "#232a27", 5: "#2a2633", 10: "#33231a", 20: "#132b29", 50: "#2e
   fs.mkdirSync(VOUT, { recursive: true });
   for (const v of denoms) {
     const imgs = {};
+    {
+      // memorial roundel, engraved in this note's plate ink
+      const out = path.join(VOUT, `memorial-${v}.png`);
+      const shader = path.join(__dirname, "vignettes", "memorial.glsl");
+      const stale = !fs.existsSync(out) || [shader, path.join(__dirname, "vignettes", "main2d.glsl")].some(f => fs.statSync(f).mtimeMs > fs.statSync(out).mtimeMs);
+      if (force || stale) await renderVignette(browser, { scene: "memorial", w: 172 * SCALE, h: 172 * SCALE, lpx: LINE * SCALE * .85, ink: INK[v], out });
+      imgs.memorial = "data:image/png;base64," + fs.readFileSync(out).toString("base64");
+    }
     for (const side of ["front", "back"]) {
       const scene = `${SLUG[v]}-${side}`;
       // a prepared photo in generator/portraits/<scene>.png is engraved with the portrait shader instead of a scene shader
@@ -33,7 +41,8 @@ const INK = { 1: "#232a27", 5: "#2a2633", 10: "#33231a", 20: "#132b29", 50: "#2e
       if (!fs.existsSync(shader)) { console.log("missing shader", scene); continue; }
       const inputs = [shader, ...(usePhoto ? [photo] : []), ...["common.glsl", "main.glsl", "main2d.glsl"].map(f => path.join(__dirname, "vignettes", f))];
       const stale = !fs.existsSync(out) || inputs.some(f => fs.statSync(f).mtimeMs > fs.statSync(out).mtimeMs);
-      if (force || stale) await renderVignette(browser, { scene: shaderName, w: VIG.w * SCALE, h: VIG.h * SCALE, lpx: LINE * SCALE, ink: INK[v], out, image: usePhoto ? photo : undefined });
+      const size = usePhoto && side === "front" ? { w: 296, h: 370 } : VIG;
+      if (force || stale) await renderVignette(browser, { scene: shaderName, w: size.w * SCALE, h: size.h * SCALE, lpx: LINE * SCALE * (usePhoto && side === "front" ? .8 : 1), ink: INK[v], out, image: usePhoto ? photo : undefined });
       imgs[side] = "data:image/png;base64," + fs.readFileSync(out).toString("base64");
     }
     if (!imgs.front || !imgs.back) continue;
