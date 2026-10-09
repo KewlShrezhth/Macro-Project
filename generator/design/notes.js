@@ -19,7 +19,7 @@ const DENOMS = {
        plate: "#132b29", primary: "#1d5753", secondary: "#2e5b3b", tint1: "#cfe2dd", tint2: "#dbe6d1", paper: "#f4f3eb",
        pattern: "hexweave", patternOpts: { gap: 7 }, ovi: ["#6a3f1a", "#bf8e50", "#6f9a63", "#215a49"],
        sealInk: "#161c1b", district: 12, letter: "L", city: "SAN FRANCISCO", serial: "SL 39027584 D", plateNo: "F 8", check: "L 5",
-       thread: 1028, dots: 4, front: { scene: "twenty-front", caption: "THE HIGH SIERRA" }, back: { scene: "twenty-back", caption: "THE GIANT SEQUOIA GROVE" } },
+       thread: 1028, dots: 4, front: { scene: "twenty-front", caption: "HARVEY SPECTER \u00b7 SUITS" }, back: { scene: "twenty-back", caption: "THE GIANT SEQUOIA GROVE" } },
   50: { v: 50, word1: "FIFTY", words: "FIFTY DOLLARS", theme: "Democracy",
        plate: "#2e1519", primary: "#6e2232", secondary: "#a88645", tint1: "#ecd7d6", tint2: "#efe5cf", paper: "#f6f2ea",
        pattern: "chevron", patternOpts: { gap: 5.5 }, serialInk: "#7e5f25", sealColor: "#8f6f30", ovi: ["#6a2a1f", "#b7874a", "#8c9a55", "#2f5e45"],
