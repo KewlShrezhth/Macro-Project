@@ -29,7 +29,7 @@ const DENOMS = {
        plate: "#141b30", primary: "#23345f", secondary: "#8e99a8", tint1: "#d7dceb", tint2: "#e4e7ec", paper: "#f3f3f1",
        pattern: "flow", patternOpts: { gap: 5 }, serialInk: "#2f4a78", sealColor: "#5d6878", ovi: ["#5e3a1c", "#b88c52", "#6e8f86", "#26505f"],
        sealInk: "#15171d", district: 11, letter: "K", city: "DALLAS", serial: "SK 85219406 F", plateNo: "E 2", check: "K 8",
-       thread: 1044, dots: 6, front: { scene: "hundred-front", caption: "JORDAN BELFORT \u00b7 THE WOLF OF WALL STREET" }, back: { scene: "hundred-back", caption: "ACROSS THE STRAIT" } },
+       thread: 1044, dots: 6, front: { scene: "hundred-front", caption: "JORDAN BELFORT \u00b7 THE WOLF OF WALL STREET" }, back: { scene: "hundred-back", caption: "THE WOLF OF WALL STREET \u00b7 2013" } },
 };
 const SIGS = [["Eleanor Whitcombe", "Treasurer of the United States"], ["James T. Okafor", "Secretary of the Treasury"]];
 

@@ -97,6 +97,7 @@ outputs = {
     "one-back": scene("delaware.png", (380, 0, 422)),
     "five-back": scene("wardogs-scene.png", (349, 0, 420), gamma=.75),
     "fifty-back": scene("takecare.png", (112, 18, 156), blur=.4, gamma=.7),
+    "hundred-back": scene("wolf-yacht.png", (345, 0, 452), gamma=.85),
     "five-front": person("hill.png", (186, 74, 250)),
     "ten-front": person("jobs.png", (180, 0, 411), not_white=True),
     "hundred-front": person("dicaprio.png", (229, 138, 330), keep_x=(110, 340)),
