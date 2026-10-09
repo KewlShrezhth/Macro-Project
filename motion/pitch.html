@@ -1,0 +1,350 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../generator/fonts/fonts.css">
+<style>
+/* 1920x1080 stage. Every element is positioned by render(t); nothing animates on its own, so frames are exact. */
+:root { --ink:#0b1424; --ink2:#111d33; --gold:#d8b46a; --gold2:#f3dca3; --paper:#f4efe2; --muted:#93a0b8; --red:#e0655a; --green:#7fc79b; }
+html, body { margin:0; width:1920px; height:1080px; overflow:hidden; background:var(--ink); }
+#stage { position:absolute; inset:0; overflow:hidden; background: radial-gradient(ellipse at 50% 45%, #18284a 0%, var(--ink) 62%); font-family:'Old Standard TT', Georgia, serif; color:var(--paper); }
+.layer { position:absolute; inset:0; opacity:0; }
+#bgrose { position:absolute; left:50%; top:50%; width:1500px; height:1500px; margin:-750px 0 0 -750px; opacity:.11; }
+#vign { position:absolute; inset:0; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); pointer-events:none; }
+#grain { position:absolute; inset:0; opacity:.05; background-image: repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 3px); mix-blend-mode:overlay; }
+
+.kicker { font:600 22px 'IBM Plex Mono', monospace; letter-spacing:7px; color:var(--gold); text-transform:uppercase; }
+.big { font:900 92px/1.02 'Playfair Display', serif; letter-spacing:-1px; }
+.mid { font:900 64px/1.05 'Playfair Display', serif; }
+.body { font:400 34px/1.35 'Old Standard TT', serif; color:#dfe5ef; }
+.caps { font:700 30px 'Cinzel', serif; letter-spacing:6px; }
+.gold { color:var(--gold); }
+.abs { position:absolute; }
+.w { display:inline-block; will-change:transform,opacity; }
+
+/* camera rig: a note drawn in note units (1 unit = 0.1 mm) and moved by a transform */
+.rig { position:absolute; left:0; top:0; transform-origin:0 0; }
+.rig img { position:absolute; left:0; top:0; width:100%; height:100%; }
+.shadow { box-shadow: 0 40px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06); }
+
+.card { position:absolute; width:620px; padding:38px 44px; background:rgba(9,17,31,.82); border:1px solid rgba(216,180,106,.45); border-radius:6px; backdrop-filter: blur(6px); }
+.card .num { font:900 120px/0.8 'Playfair Display', serif; color:var(--gold); opacity:.9; }
+.card .t { font:900 52px/1.05 'Playfair Display', serif; margin:18px 0 14px; }
+.card .d { font:400 30px/1.35 'Old Standard TT', serif; color:#d3dbe8; }
+.rule { height:2px; background:linear-gradient(90deg, var(--gold), transparent); }
+
+.chip { position:absolute; padding:22px 30px; border:1.5px solid rgba(216,180,106,.6); border-radius:4px; background:rgba(12,22,40,.88); font:700 30px 'Cinzel', serif; letter-spacing:3px; text-align:center; }
+.arrow { position:absolute; font:900 54px 'Playfair Display', serif; color:var(--gold); }
+.check { color:var(--green); }
+</style>
+
+<div id="stage">
+  <svg id="bgrose" viewBox="0 0 1500 1500"></svg>
+
+  <!-- A: hook -->
+  <div class="layer" id="A">
+    <div class="abs kicker" id="A_k" style="left:0;right:0;top:250px;text-align:center">To the U.S. Treasury &amp; Federal Reserve</div>
+    <div class="abs big" id="A_l1" style="left:0;right:0;top:340px;text-align:center"></div>
+    <div class="abs big" id="A_l2" style="left:0;right:0;top:470px;text-align:center;font-size:66px"></div>
+    <div id="A_twins" class="abs" style="left:0;right:0;top:660px;height:240px"></div>
+    <div class="abs" id="A_fan" style="left:0;top:0;width:1920px;height:1080px"></div>
+    <div class="abs kicker" id="A_tk" style="left:0;right:0;top:110px;text-align:center">Introducing</div>
+    <div class="abs big" id="A_title" style="left:0;right:0;top:160px;text-align:center;font-size:104px">The New American Note Series</div>
+    <div class="abs caps gold" id="A_year" style="left:0;right:0;top:300px;text-align:center;font-size:40px;letter-spacing:22px">· 2026 ·</div>
+  </div>
+
+  <!-- B: security -->
+  <div class="layer" id="B">
+    <div class="rig shadow" id="B_rig"><img src="assets/100-front.jpg">
+      <img id="B_shift" src="assets/100-front.jpg">
+      <div id="B_thread" class="abs"></div>
+      <div id="B_wmglow" class="abs"></div>
+      <div id="B_wmwin" class="abs" style="left:1444px;top:188px;width:148px;height:184px;border-radius:50%;overflow:hidden;opacity:0">
+        <img src="assets/100-front.jpg" style="position:absolute;left:-413px;top:-87.5px;width:974px;height:336.6px;filter:grayscale(1) contrast(1.15) brightness(1.05);opacity:.55;mix-blend-mode:multiply">
+      </div>
+    </div>
+    <div class="abs kicker" id="B_k" style="left:110px;top:80px;padding:10px 18px;background:rgba(9,17,31,.85);border-radius:3px">Part 1 · Security</div>
+    <div class="card" id="B_c1" style="left:110px;top:300px"><div class="num">01</div><div class="t">Color-Shifting Ink</div><div class="rule"></div><div class="d" style="margin-top:18px">The corner number turns from <span class="gold">copper</span> to <span style="color:var(--green)">green</span> when tilted. No home printer or copier can reproduce it.</div></div>
+    <div class="card" id="B_c2" style="left:110px;top:300px"><div class="num">02</div><div class="t">Security Thread</div><div class="rule"></div><div class="d" style="margin-top:18px">Woven inside the paper, printed “USA 100”, and placed in a different spot on every denomination.</div></div>
+    <div class="card" id="B_c3" style="left:1190px;top:300px"><div class="num">03</div><div class="t">Watermark Window</div><div class="rule"></div><div class="d" style="margin-top:18px">Hold it to the light and a faint portrait appears inside the paper itself. It can’t be printed.</div></div>
+    <div class="abs" id="B_sum" style="left:0;right:0;top:850px;text-align:center"></div>
+  </div>
+
+  <!-- C: accessibility -->
+  <div class="layer" id="C">
+    <div class="abs kicker" id="C_k" style="left:110px;top:80px;padding:10px 18px;background:rgba(9,17,31,.85);border-radius:3px">Part 2 · Accessibility</div>
+    <div id="C_prob" class="abs" style="left:0;top:0;width:1920px;height:1080px"></div>
+    <div class="abs big" id="C_probT" style="left:0;right:0;top:170px;text-align:center"></div>
+    <div class="rig shadow" id="C_rig"><img id="C_img" src="assets/20-front.jpg"><div id="C_pulse" class="abs"></div></div>
+    <div class="card" id="C_c1" style="left:110px;top:270px"><div class="num">01</div><div class="t">Tactile Raised Dots</div><div class="rule"></div><div class="d" style="margin-top:18px">Count them by touch: one dot on the $1, up to six on the $100.</div><div id="C_dots" style="margin-top:26px"></div></div>
+    <div class="card" id="C_c2" style="left:110px;top:300px"><div class="num">02</div><div class="t">High-Contrast Numerals</div><div class="rule"></div><div class="d" style="margin-top:18px">Huge, dark numbers on a light panel, in multiple spots on both sides, readable for people with low vision.</div></div>
+    <div id="C_len" class="abs" style="left:0;top:0;width:1920px;height:1080px"></div>
+    <div class="abs" id="C_lenT" style="left:110px;top:300px;width:600px"><div class="mid">Bigger value,<br>longer bill.</div><div class="body" style="margin-top:24px">Like Australia: each step up adds <span class="gold" style="white-space:nowrap">7 mm</span>.<br>Color, touch, and size.</div></div>
+  </div>
+
+  <!-- D: macroeconomics -->
+  <div class="layer" id="D">
+    <div id="D_strip" class="abs" style="left:0;top:820px;height:200px;width:1920px;opacity:.35"></div>
+    <div class="abs kicker" id="D_k" style="left:110px;top:80px;padding:10px 18px;background:rgba(9,17,31,.85);border-radius:3px">Part 3 · The Economy</div>
+    <div class="abs mid" id="D_title" style="left:120px;top:140px">Money has three jobs.</div>
+    <div id="D_jobs" class="abs" style="left:0;top:0;width:1920px;height:1080px"></div>
+    <div id="D_flow" class="abs" style="left:0;top:0;width:1920px;height:1080px"></div>
+    <div id="D_ad" class="abs" style="left:0;right:0;top:330px;text-align:center"></div>
+    <div id="D_res" class="abs" style="left:0;top:0;width:1920px;height:1080px"></div>
+  </div>
+
+  <!-- E: cost / benefit -->
+  <div class="layer" id="E">
+    <div class="abs kicker" id="E_k" style="left:110px;top:80px;padding:10px 18px;background:rgba(9,17,31,.85);border-radius:3px">Part 4 · Cost vs. Benefit</div>
+    <div class="abs" id="E_cost" style="left:150px;top:220px;width:700px"></div>
+    <div class="abs" id="E_ben" style="left:1070px;top:220px;width:700px"></div>
+    <svg class="abs" id="E_scale" style="left:660px;top:640px" width="600" height="380" viewBox="0 0 600 380"></svg>
+  </div>
+
+  <!-- F: close -->
+  <div class="layer" id="F">
+    <div class="abs" id="F_fan" style="left:0;top:0;width:1920px;height:1080px"></div>
+    <div class="abs" id="F_words" style="left:0;right:0;top:120px;text-align:center"></div>
+    <div class="abs caps gold" id="F_title" style="left:0;right:0;top:880px;text-align:center;font-size:38px;letter-spacing:12px">The New American Note Series · 2026</div>
+    <div class="abs kicker" id="F_ty" style="left:0;right:0;top:950px;text-align:center;color:#c9d2e2">Thank you</div>
+  </div>
+
+  <div id="vign"></div><div id="grain"></div>
+</div>
+
+<script src="../generator/design/lib.js"></script>
+<script>
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const eout = x => 1 - Math.pow(1 - x, 3);
+const eback = x => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, x) => a + (b - a) * x;
+const vis = (t, a, b, fi = .6, fo = .6) => Math.min(eout(seg(t, a, a + fi)), 1 - eio(seg(t, b - fo, b)));
+const NW = v => 1560 + 70 * [1, 5, 10, 20, 50, 100].indexOf(v);   // note length in 0.1 mm units
+const VALS = [1, 5, 10, 20, 50, 100];
+function set(el, o, tf) { el.style.opacity = o; if (tf !== undefined) el.style.transform = tf; }
+
+// word-by-word text reveal
+function words(el, text, cls = "") {
+  el.innerHTML = text.split(" ").map(w => `<span class="w ${cls}">${w}&nbsp;</span>`).join("");
+  return [...el.children];
+}
+function reveal(spans, t, start, per = .09, dur = .5, out = 1e9, outDur = .5) {
+  spans.forEach((s, i) => {
+    const p = eout(seg(t, start + i * per, start + i * per + dur));
+    const q = eio(seg(t, out, out + outDur));
+    s.style.opacity = p * (1 - q);
+    s.style.transform = `translateY(${(1 - p) * 40 - q * 20}px)`;
+  });
+}
+
+/* ---------- background lathe rosette ---------- */
+$("bgrose").innerHTML = rosetteRing(750, 750, 300, 720, { lobes: 48, count: 14, stroke: "#d8b46a", sw: .9 }) +
+  rosetteRing(750, 750, 120, 300, { lobes: 24, count: 10, stroke: "#d8b46a", sw: .9 });
+
+/* ---------- camera rig ---------- */
+function rig(el, v, fx, fy, s, cx = 960, cy = 540) {
+  el.style.width = NW(v) + "px"; el.style.height = "660px";
+  el.style.transform = `translate(${cx - fx * s}px, ${cy - fy * s}px) scale(${s})`;
+}
+function camPath(keys, t) {          // keys: [time, fx, fy, scale, cx, cy]
+  if (t <= keys[0][0]) return keys[0].slice(1);
+  for (let i = 0; i < keys.length - 1; i++) {
+    const a = keys[i], b = keys[i + 1];
+    if (t <= b[0]) { const x = eio(seg(t, a[0], b[0])); return a.slice(1).map((v, j) => lerp(v, b[j + 1], x)); }
+  }
+  return keys[keys.length - 1].slice(1);
+}
+const noteImg = (v, side, h, extra = "") => `<img src="assets/${v}-${side}.jpg" style="position:absolute;height:${h}px;width:${h * NW(v) / 660}px;${extra}" class="shadow">`;
+
+/* ---------- build static pieces ---------- */
+const A_l1 = words($("A_l1"), "Every year, millions in fake dollars.");
+const A_l2 = words($("A_l2"), "Millions of Americans can’t tell a $1 from a $100.");
+$("A_twins").innerHTML = [0, 1].map(i => `<div class="abs" style="left:${600 + i * 400}px;top:0;width:330px;height:140px;border-radius:6px;background:linear-gradient(135deg,#58635b,#7c8780);box-shadow:0 20px 50px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font:900 80px 'Playfair Display';color:rgba(255,255,255,.75)">?</div>`).join("");
+$("A_fan").innerHTML = VALS.map(v => noteImg(v, "front", 300, "transform-origin:50% 100%;left:0;top:0")).join("");
+$("F_fan").innerHTML = VALS.map(v => noteImg(v, "front", 260, "transform-origin:50% 120%;left:0;top:0")).join("");
+
+$("B_shift").style.cssText = "clip-path: inset(76% 3.2% 8.5% 88%);";
+$("B_thread").style.cssText = "left:1300px;top:0;width:13px;height:660px;opacity:0;box-shadow:0 0 18px 4px rgba(255,214,120,.9)";
+$("B_wmglow").style.cssText = "left:1418px;top:160px;width:200px;height:240px;border-radius:50%;box-shadow:0 0 60px 18px rgba(255,226,150,.85), inset 0 0 40px 10px rgba(255,226,150,.6);opacity:0";
+const B_sum = words($("B_sum"), "Checked in seconds. No special tools.", "mid");
+
+$("C_prob").innerHTML = VALS.map((v, i) => `<div class="abs pb" style="left:${330 + (i % 3) * 430}px;top:${380 + Math.floor(i / 3) * 230}px;width:380px;height:160px;border-radius:6px;background:linear-gradient(135deg,#56625a,#7a8680);box-shadow:0 20px 50px rgba(0,0,0,.5)"></div>`).join("");
+const C_probT = words($("C_probT"), "Same size. Same color.");
+$("C_pulse").style.cssText = "left:40px;top:290px;width:80px;height:220px;border:6px solid #ffd977;border-radius:40px;opacity:0;box-shadow:0 0 30px #ffd977";
+$("C_dots").innerHTML = VALS.map((v, i) => `<div class="cd" style="display:flex;align-items:center;gap:18px;margin:8px 0;font:700 30px 'IBM Plex Mono'"><span style="width:110px;color:#d8b46a">$${v}</span>${"<span class='dot' style='width:22px;height:22px;border-radius:50%;background:#f3dca3;box-shadow:0 0 12px #d8b46a;display:inline-block'></span>".repeat(i + 1)}</div>`).join("");
+$("C_len").innerHTML = VALS.map((v, i) => `<div class="abs lrow" style="left:760px;top:${135 + i * 138}px;height:124px">
+  <img src="assets/${v}-front.jpg" style="height:124px;width:${124 * NW(v) / 660}px" class="shadow">
+  <div class="abs" style="left:${124 * NW(v) / 660 + 26}px;top:36px;white-space:nowrap;font:700 34px 'IBM Plex Mono';color:#d8b46a">${(NW(v) / 10).toFixed(0)} mm</div></div>`).join("");
+
+$("D_strip").innerHTML = [...VALS, ...VALS].map((v, i) => noteImg(v, "back", 190, `left:${i * 520}px;top:0;box-shadow:none`)).join("");
+const jobs = [["Store of Value", "Stopping fakes protects every saved dollar"], ["Medium of Exchange", "Everyone can identify and use their cash"], ["Confidence", "Trusted cash keeps people spending"]];
+$("D_jobs").innerHTML = jobs.map((j, i) => `<div class="abs card job" style="left:${110 + i * 580}px;top:300px;width:470px;padding:34px 38px"><div class="num" style="font-size:90px">0${i + 1}</div><div class="t" style="font-size:44px">${j[0]}</div><div class="rule"></div><div class="d" style="margin-top:16px;font-size:28px">${j[1]}</div></div>`).join("");
+const flow = ["Fake bills", "Money supply ↑", "Prices ↑", "Savings lose value"];
+$("D_flow").innerHTML = flow.map((x, i) => `<div class="chip fl" style="left:${100 + i * 445}px;top:700px;width:330px">${x}</div>` + (i < 3 ? `<div class="arrow fa" style="left:${450 + i * 445}px;top:700px">→</div>` : "")).join("");
+$("D_ad").innerHTML = `<div class="kicker" style="margin-bottom:30px">Aggregate Demand</div>
+  <div style="font:900 150px 'Playfair Display'"><span id="D_C" style="color:#d8b46a">C</span> <span class="dim">+ I + G + NX</span></div>
+  <div class="body" id="D_adT" style="margin-top:20px">Consumption is the <span class="gold">largest</span> part of AD.<br>Trusted money keeps it strong.</div>`;
+$("D_res").innerHTML = `<svg class="abs" id="D_globe" style="left:260px;top:280px" width="460" height="460" viewBox="0 0 460 460"></svg>
+  <div class="abs" style="left:820px;top:360px;width:900px"><div class="kicker">Global trust</div><div class="mid" style="margin-top:20px">The world’s reserve currency</div><div class="body" style="margin-top:24px">A trusted dollar keeps U.S. borrowing costs <span class="gold">low</span>.</div></div>`;
+{ let g = ""; const c = 230, r = 200;
+  g += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#d8b46a" stroke-width="2"/>`;
+  for (let i = 1; i < 6; i++) { const ry = r * Math.cos(i / 6 * Math.PI); g += `<ellipse cx="${c}" cy="${c}" rx="${r}" ry="${Math.abs(ry)}" fill="none" stroke="#d8b46a" stroke-width="1" opacity=".45" class="lat"/>`; }
+  for (let i = 0; i < 6; i++) g += `<ellipse class="lon" cx="${c}" cy="${c}" rx="${r}" ry="${r}" fill="none" stroke="#d8b46a" stroke-width="1" opacity=".55"/>`;
+  g += `<text x="${c}" y="${c + 34}" text-anchor="middle" style="font:900 110px 'Playfair Display'" fill="#f3dca3">$</text>`;
+  $("D_globe").innerHTML = g; }
+
+const costs = ["New printing plates", "Special inks & threads", "Updated ATMs & cash machines"];
+const bens = ["Less fraud", "Fewer counting mistakes", "Independence for blind Americans", "Global trust in the dollar"];
+$("E_cost").innerHTML = `<div class="caps" style="color:#f1a39a">Costs</div><div class="kicker" style="color:#9fb0c9;margin:10px 0 30px">One time</div>` + costs.map(x => `<div class="ci body" style="margin:16px 0;font-size:36px"><span style="color:#f1a39a">—</span> ${x}</div>`).join("");
+$("E_ben").innerHTML = `<div class="caps check">Benefits</div><div class="kicker" style="color:#9fb0c9;margin:10px 0 30px">Every year</div>` + bens.map(x => `<div class="bi body" style="margin:16px 0;font-size:36px"><span class="check">✓</span> ${x}</div>`).join("");
+$("E_scale").innerHTML = `<polygon points="300,120 270,330 330,330" fill="#d8b46a"/><rect x="200" y="330" width="200" height="14" rx="4" fill="#d8b46a"/>
+  <g id="E_beam"><rect x="40" y="112" width="520" height="12" rx="6" fill="#f3dca3"/><circle cx="300" cy="118" r="16" fill="#d8b46a"/>
+  <g id="E_panL"><line x1="70" y1="118" x2="70" y2="190" stroke="#f3dca3" stroke-width="3"/><path d="M10 190 H130 Q120 240 70 240 Q20 240 10 190Z" fill="#f1a39a"/></g>
+  <g id="E_panR"><line x1="530" y1="118" x2="530" y2="190" stroke="#f3dca3" stroke-width="3"/><path d="M470 190 H590 Q580 240 530 240 Q480 240 470 190Z" fill="#7fc79b"/></g></g>`;
+const F_words = words($("F_words"), "Secure. Accessible. Built for every American.", "big");
+F_words.forEach(w => w.style.fontSize = "78px");
+
+/* ---------- timeline ---------- */
+const T = { A: [0, 18], B: [18, 58], C: [58, 98], D: [98, 138], E: [138, 163], F: [163, 175] };
+const DURATION = 175;
+
+function render(t) {
+  $("bgrose").style.transform = `rotate(${t * 2}deg) scale(${1 + .04 * Math.sin(t / 6)})`;
+
+  /* A: hook */
+  { const L = $("A"); L.style.opacity = vis(t, 0, 18.4, .8, .8);
+    set($("A_k"), vis(t, .6, 9.4) * .9);
+    reveal(A_l1, t, 1.0, .12, .55, 9.2);
+    reveal(A_l2, t, 4.0, .1, .55, 9.2);
+    const tw = vis(t, 5.5, 9.4);
+    [...$("A_twins").children].forEach((d, i) => set(d, tw, `translateY(${(1 - eout(seg(t, 5.5 + i * .2, 6.6 + i * .2))) * 60}px) rotate(${Math.sin(t * 3 + i) * 2 * seg(t, 7, 8)}deg)`));
+    const imgs = [...$("A_fan").children];
+    imgs.forEach((im, i) => {
+      const p = eback(seg(t, 9.6 + i * .28, 10.8 + i * .28));
+      const ang = (i - 2.5) * 8 * eio(seg(t, 11.5, 13));
+      const w = 300 * NW(VALS[i]) / 660;
+      const x = 960 - w / 2 + (i - 2.5) * 150 * eio(seg(t, 11.5, 13));
+      const y = lerp(1150, 560, p) + Math.abs(i - 2.5) * 22 * eio(seg(t, 11.5, 13));
+      im.style.left = x + "px"; im.style.top = y + "px";
+      im.style.transform = `rotate(${ang}deg)`; im.style.opacity = seg(t, 9.6 + i * .28, 10 + i * .28);
+    });
+    set($("A_tk"), vis(t, 12.6, 18.4, .6, .6), `translateY(${(1 - eout(seg(t, 12.6, 13.4))) * 20}px)`);
+    set($("A_title"), vis(t, 12.9, 18.4, .8, .6), `translateY(${(1 - eout(seg(t, 12.9, 14))) * 30}px) scale(${lerp(.96, 1, eout(seg(t, 12.9, 15)))})`);
+    set($("A_year"), vis(t, 13.8, 18.4, .8, .6), `scale(${lerp(.8, 1, eout(seg(t, 13.8, 15)))})`);
+  }
+
+  /* B: security ($100 front) */
+  { const L = $("B"); L.style.opacity = vis(t, 18, 58.4, .8, .8);
+    const v = 100, W = NW(v), s0 = 1560 / W;
+    const [fx, fy, s, cx, cy] = camPath([
+      [18, W / 2, 330, s0 * .9, 960, 1300], [20.5, W / 2, 330, s0, 960, 560],
+      [22.5, 1770, 560, s0 * 3.4, 1320, 560], [32, 1760, 560, s0 * 3.6, 1320, 560],
+      [33.5, 1306, 330, s0 * 2.6, 1360, 540], [44, 1306, 330, s0 * 2.7, 1360, 540],
+      [45.5, 1518, 280, s0 * 3.0, 640, 560], [54.5, 1518, 280, s0 * 3.1, 640, 560],
+      [56, W / 2, 330, s0 * .82, 960, 470]], t);
+    rig($("B_rig"), v, fx, fy, s, cx, cy);
+    set($("B_k"), vis(t, 18.6, 58));
+    // 01 color shift: the corner numeral swings copper -> green -> copper
+    const sh = vis(t, 23, 32.5, .8, .8);
+    $("B_shift").style.opacity = sh;
+    $("B_shift").style.filter = `hue-rotate(${(.5 - .5 * Math.cos((t - 23) * 1.25)) * 95}deg) saturate(1.4)`;
+    set($("B_c1"), vis(t, 22.6, 32.4), `translateX(${(1 - eout(seg(t, 22.6, 23.6))) * -60}px)`);
+    // 02 thread: a glowing sweep
+    const th = vis(t, 34, 44.2, .6, .6);
+    $("B_thread").style.opacity = th * (.75 + .25 * Math.sin(t * 5));
+    $("B_thread").style.left = (1306 - 6.5) + "px";
+    $("B_thread").style.background = `linear-gradient(180deg, transparent ${((t * 40) % 140) - 40}%, #fffbe8 ${((t * 40) % 140) - 20}%, transparent ${((t * 40) % 140)}%), rgba(255,214,120,.75)`;
+    set($("B_c2"), vis(t, 33.8, 44.2), `translateX(${(1 - eout(seg(t, 33.8, 34.8))) * -60}px)`);
+    // 03 watermark: held to the light
+    const wm = eio(seg(t, 47.5, 49.5)) * (1 - eio(seg(t, 54.2, 55.2)));
+    $("B_wmwin").style.opacity = wm; $("B_wmglow").style.opacity = wm * .55;
+    set($("B_c3"), vis(t, 45.8, 55.2), `translateX(${(1 - eout(seg(t, 45.8, 46.8))) * 60}px)`);
+    reveal(B_sum, t, 55.6, .12, .5, 57.6, .5);
+  }
+
+  /* C: accessibility */
+  { const L = $("C"); L.style.opacity = vis(t, 58, 98.4, .8, .8);
+    set($("C_k"), vis(t, 58.6, 98));
+    [...$("C_prob").children].forEach((d, i) => set(d, vis(t, 59 + i * .12, 65.6, .5, .6), `translateY(${(1 - eout(seg(t, 59 + i * .12, 59.8 + i * .12))) * 50}px)`));
+    reveal(C_probT, t, 59.8, .25, .6, 65.2, .5);
+    // dots on the $20 front, then the big numeral on the $20 back
+    const front = t < 76.5;
+    $("C_img").src = front ? "assets/20-front.jpg" : "assets/20-back.jpg";
+    const W = NW(20), s0 = 1560 / W;
+    const [fx, fy, s, cx, cy] = camPath(front
+      ? [[65.6, W / 2, 330, s0 * .9, 1240, 560], [67.5, 80, 400, s0 * 3.2, 1350, 560], [76, 80, 400, s0 * 3.3, 1350, 560]]
+      : [[76.5, W / 2, 330, s0 * .9, 1240, 560], [78.5, 1442, 300, s0 * 2.4, 1350, 540], [86, 1442, 300, s0 * 2.5, 1350, 540]], t);
+    rig($("C_rig"), 20, fx, fy, s, cx, cy);
+    $("C_rig").style.opacity = vis(t, 66, 76.4, .6, .5) + vis(t, 76.5, 86.4, .6, .6);
+    $("C_pulse").style.opacity = vis(t, 68, 76, .4, .4) * (.5 + .5 * Math.sin(t * 6));
+    set($("C_c1"), vis(t, 66.6, 76.4), `translateX(${(1 - eout(seg(t, 66.6, 67.6))) * -60}px)`);
+    [...$("C_dots").children].forEach((d, i) => set(d, eout(seg(t, 69 + i * .6, 69.5 + i * .6)), `translateX(${(1 - eout(seg(t, 69 + i * .6, 69.6 + i * .6))) * -30}px)`));
+    set($("C_c2"), vis(t, 78.3, 86.4), `translateX(${(1 - eout(seg(t, 78.3, 79.3))) * -60}px)`);
+    // lengths: six fronts growing to their true lengths
+    [...$("C_len").children].forEach((d, i) => {
+      const p = eout(seg(t, 87 + i * .45, 88.2 + i * .45));
+      set(d, vis(t, 86.8 + i * .45, 98, .5, .6), `translateX(${(1 - p) * 120}px)`);
+      d.firstElementChild.style.clipPath = `inset(0 ${(1 - eio(seg(t, 87.5 + i * .45, 89 + i * .45))) * 100}% 0 0)`;
+    });
+    set($("C_lenT"), vis(t, 87.2, 98), `translateY(${(1 - eout(seg(t, 87.2, 88.2))) * 30}px)`);
+  }
+
+  /* D: macroeconomics */
+  { const L = $("D"); L.style.opacity = vis(t, 98, 138.4, .8, .8);
+    set($("D_k"), vis(t, 98.6, 138));
+    $("D_strip").style.transform = `translateX(${-((t - 98) * 60) % 3120}px)`;
+    set($("D_title"), vis(t, 99, 120.5), `translateY(${(1 - eout(seg(t, 99, 100))) * 30}px)`);
+    [...$("D_jobs").children].forEach((d, i) => {
+      const a = [100.5, 109.5, 116.5][i];
+      set(d, vis(t, a, 120.5, .7, .6), `translateY(${(1 - eback(seg(t, a, a + .9))) * 80}px)`);
+      d.style.borderColor = (t > a && t < [109.5, 116.5, 120.5][i]) ? "rgba(243,220,163,1)" : "rgba(216,180,106,.35)";
+      d.style.boxShadow = (t > a && t < [109.5, 116.5, 120.5][i]) ? "0 0 40px rgba(216,180,106,.35)" : "none";
+    });
+    // counterfeit -> inflation chain under the first job
+    [...$("D_flow").querySelectorAll(".fl")].forEach((d, i) => set(d, vis(t, 102.5 + i * 1.2, 109.3, .5, .5), `translateY(${(1 - eout(seg(t, 102.5 + i * 1.2, 103.2 + i * 1.2))) * 30}px)`));
+    [...$("D_flow").querySelectorAll(".fa")].forEach((d, i) => set(d, vis(t, 103.1 + i * 1.2, 109.3, .4, .5)));
+    // AD = C + I + G + NX
+    set($("D_ad"), vis(t, 121, 130.4, .7, .6), `scale(${lerp(.92, 1, eout(seg(t, 121, 122.5)))})`);
+    $("D_C").style.textShadow = `0 0 ${20 + 30 * (.5 + .5 * Math.sin(t * 3))}px rgba(216,180,106,.8)`;
+    $("D_C").style.fontSize = `${150 + 40 * eback(seg(t, 123, 124.2))}px`;
+    document.querySelectorAll("#D_ad .dim").forEach(d => d.style.opacity = lerp(1, .35, seg(t, 123, 124)));
+    // reserve currency globe
+    set($("D_res"), vis(t, 130.6, 138.2, .7, .6));
+    document.querySelectorAll("#D_globe .lon").forEach((e, i) => e.setAttribute("rx", Math.abs(200 * Math.cos(((i / 6) + t * .08) * Math.PI))));
+  }
+
+  /* E: cost vs benefit */
+  { const L = $("E"); L.style.opacity = vis(t, 138, 163.4, .8, .8);
+    set($("E_k"), vis(t, 138.6, 163));
+    set($("E_cost").firstElementChild, eout(seg(t, 139, 139.8))); set($("E_cost").children[1], eout(seg(t, 139.4, 140.2)));
+    [...$("E_cost").querySelectorAll(".ci")].forEach((d, i) => set(d, eout(seg(t, 140.5 + i * 1.6, 141.2 + i * 1.6)), `translateX(${(1 - eout(seg(t, 140.5 + i * 1.6, 141.2 + i * 1.6))) * -40}px)`));
+    set($("E_ben").firstElementChild, eout(seg(t, 146, 146.8))); set($("E_ben").children[1], eout(seg(t, 146.4, 147.2)));
+    [...$("E_ben").querySelectorAll(".bi")].forEach((d, i) => set(d, eout(seg(t, 147.6 + i * 1.6, 148.3 + i * 1.6)), `translateX(${(1 - eout(seg(t, 147.6 + i * 1.6, 148.3 + i * 1.6))) * 40}px)`));
+    const tilt = lerp(-10, 14, eback(seg(t, 155, 157)));
+    $("E_scale").style.opacity = eout(seg(t, 139.5, 140.5));
+    $("E_beam").setAttribute("transform", `rotate(${tilt} 300 118)`);
+    $("E_panL").setAttribute("transform", `rotate(${-tilt} 70 118)`);
+    $("E_panR").setAttribute("transform", `rotate(${-tilt} 530 118)`);
+  }
+
+  /* F: close */
+  { const L = $("F"); L.style.opacity = vis(t, 163, 175.1, .8, .01);
+    [...$("F_fan").children].forEach((im, i) => {
+      const p = eback(seg(t, 163.4 + i * .18, 164.6 + i * .18));
+      const w = 260 * NW(VALS[i]) / 660;
+      const ang = (i - 2.5) * 9;
+      im.style.left = (960 - w / 2 + (i - 2.5) * 175) + "px";
+      im.style.top = lerp(1150, 470 + Math.abs(i - 2.5) * 26, p) + "px";
+      im.style.transform = `rotate(${ang * p}deg)`; im.style.opacity = seg(t, 163.4 + i * .18, 163.8 + i * .18);
+    });
+    reveal(F_words, t, 164.6, .22, .6);
+    set($("F_title"), eout(seg(t, 168.5, 169.6)), `translateY(${(1 - eout(seg(t, 168.5, 169.6))) * 20}px)`);
+    set($("F_ty"), eout(seg(t, 170.5, 171.5)));
+    $("F").style.opacity = vis(t, 163, 175.1, .8, .01) * (1 - eio(seg(t, 173.6, 175)));
+  }
+}
+window.DURATION = DURATION; window.render = render;
+render(0);
+</script>
