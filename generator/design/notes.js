@@ -69,6 +69,7 @@ function front(n, img, memImg) {
   o += plainText(n.plateNo, 1346, 210, `700 11px ${FONT.small}`, n.plate, { anchor: "end" });
   o += tallCounter(n, id, 70, 66, 124, 228, false) + tallCounter(n, id, W - 194, 66, 124, 228, true);
   o += roundCounter(n, id, 128, H - 128, 50, false);
+  o += fillers(n, [[562, 232, 34], [998, 232, 34], [1318, 470, 46], [272, 560, 18], [998, 470, 30], [562, 470, 30]]);
   o += oviNumeral(n, id, 1488, 600, s.length === 3 ? 92 : 118);
   o += banner(n, id, n.words);
   o += specimen(n, G.wm.cx, 576);
@@ -92,6 +93,7 @@ function back(n, img, frontImg, memImg) {
   o += watermarkSurround(n, wmx, G.wm.cy, G.wm.rx, G.wm.ry);
   o += watermarkWindow(n, id, wmx, G.wm.cy, G.wm.rx, G.wm.ry, frontImg, true);
   o += register(n, wmx, G.reg.cy, G.reg.r, true);
+  o += fillers(n, [[262, 440, 32], [262, 272, 22], [1232, 590, 0]].filter(p => p[2]));
   o += fedSeal(n, id, wmx, 532, 44);
   o += tallCounter(n, id, 70, 66, 124, 228, false) + tallCounter(n, id, W - 194, 66, 124, 228, true);
   o += numeralPanel(n, id, panel, s, n.word1);

@@ -51,13 +51,14 @@ function spray(n, id, root, dirDeg, len, count, spread, width, mirror = false) {
 }
 
 /* ---------- shaded headline: extruded shadow, paper face, ruled fill, outline ---------- */
-function slabText(n, id, text, cx, y, size, width, { depth = 3.2, family = FONT.num, weight = 900, ls = 0 } = {}) {
+function slabText(n, id, text, cx, y, size, width, { depth = 3.2, family = FONT.num, weight = 900, ls = 0, bright = false } = {}) {
   const st = `font-family:${family};font-weight:${weight};font-size:${size}px;letter-spacing:${ls}px`;
   const fit = width ? ` textLength="${width}" lengthAdjust="spacingAndGlyphs"` : "";
   let o = "";
   for (let k = depth; k > 0; k -= .5) o += `<text x="${f(cx + k)}" y="${f(y + k)}" text-anchor="middle" style="${st}"${fit} fill="${n.plate}">${esc(text)}</text>`;
   o += `<text x="${cx}" y="${y}" text-anchor="middle" style="${st}"${fit} fill="${n.paper}">${esc(text)}</text>`;
-  o += `<text x="${cx}" y="${y}" text-anchor="middle" style="${st}"${fit} fill="url(#${id}-hatch)" opacity=".9">${esc(text)}</text>`;
+  if (bright) o += `<text x="${cx}" y="${y}" text-anchor="middle" style="${st}"${fit} fill="${n.tint1}">${esc(text)}</text>`;
+  o += `<text x="${cx}" y="${y}" text-anchor="middle" style="${st}"${fit} fill="url(#${id}-hatch)" opacity="${bright ? .18 : .9}">${esc(text)}</text>`;
   o += `<text x="${cx}" y="${y}" text-anchor="middle" style="${st}"${fit} fill="none" stroke="${n.plate}" stroke-width="${f(size * .022)}">${esc(text)}</text>`;
   return o;
 }
@@ -103,7 +104,7 @@ function tallCounter(n, id, x0, y0, w, h, right) {
   o += `<path d="${shape}" fill="none" stroke="${n.plate}" stroke-width="1.4"/>`;
   const fs = s.length === 1 ? h * .9 : s.length === 2 ? w * .82 : w * .56;
   const fw = s.length === 1 ? null : w * .86;
-  o += slabText(n, id, s, cx, y0 + h / 2 + fs * .34, fs, fw, { depth: 3 });
+  o += slabText(n, id, s, cx, y0 + h / 2 + fs * .34, fs, fw, { depth: 3, bright: true });
   return o;
 }
 /* small round counter for the lower corners */
@@ -153,3 +154,17 @@ function memorial(n, id, cx, cy, r, img) {
     <text style="font:700 10px ${FONT.caps};letter-spacing:3.4px" fill="${n.plate}" text-anchor="middle"><textPath href="#${id}-memb" startOffset="50%">SEPTEMBER 11, 2001</textPath></text>`;
   return o;
 }
+
+/* small lathe rosettes printed faintly in the open areas of the note */
+function filler(n, cx, cy, r, kind = 0) {
+  // open, crisp lathe flower: two interlaced petal curves, a ring and an eight-point star
+  const ink = n.primary;
+  let o = rosetteRing(cx, cy, r * .45, r, { lobes: [8, 10, 12][kind % 3], count: 3, stroke: ink, sw: .45 });
+  o += rings(cx, cy, [r * .42], ink, .5);
+  let star = "";
+  for (let i = 0; i < 16; i++) { const a = i / 16 * TAU - Math.PI / 2, rr = i % 2 ? r * .14 : r * .38; star += (i ? "L" : "M") + f(cx + rr * Math.cos(a)) + " " + f(cy + rr * Math.sin(a)); }
+  o += `<path d="${star}Z" fill="none" stroke="${ink}" stroke-width=".5"/>`;
+  o += `<circle cx="${cx}" cy="${cy}" r="${r * .07}" fill="${ink}"/>`;
+  return `<g opacity=".75">${o}</g>`;
+}
+function fillers(n, spots) { return spots.map(([x, y, r], i) => filler(n, x, y, r, i)).join(""); }
