@@ -1,0 +1,8 @@
+motion/stills/
+motion/assets/
+video/
+node_modules/
+out/
+pitch/assets/*.jpg
+pitch/assets/*.png
+pitch/audio/*.wav

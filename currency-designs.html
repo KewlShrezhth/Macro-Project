@@ -1,0 +1,642 @@
+<title>American Note Series</title>
+<meta name="description" content="Redesigned U.S. currency: front and back of all six denominations with security and accessibility features.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Libre+Franklin:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: an exhibition board. A sticky control rail, a feature key, then one row per denomination (front + back side by side), then the written answers. */
+:root {
+  --bg: #e4e8ee;
+  --surface: #f5f7fa;
+  --fg: #1a1d24;
+  --muted: #586071;
+  --rule: #c6ccd6;
+  --accent: #27467a;
+  --on-accent: #ffffff;
+  --font-display: "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
+  --font-body: "Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111318; --surface: #1a1d24; --fg: #e9ebef; --muted: #9ba3b2; --rule: #2d323c;
+    --accent: #a9c1ee; --on-accent: #10172a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111318; --surface: #1a1d24; --fg: #e9ebef; --muted: #9ba3b2; --rule: #2d323c;
+  --accent: #a9c1ee; --on-accent: #10172a; color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 72px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+.intro { display: grid; gap: 12px; max-width: 70ch; }
+.intro h1 { font-size: clamp(38px, 6vw, 64px); line-height: 1.02; letter-spacing: -.01em; }
+.intro h1 em { font-style: italic; font-weight: 500; }
+.intro p { color: var(--muted); font-size: 16px; }
+
+.controls {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-block: 28px 8px; padding: 10px 0;
+  background: var(--bg); border-bottom: 1px solid var(--rule);
+}
+.controls .label { font-size: 12px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; font-weight: 600; margin-right: 4px; }
+.toggle {
+  font: 600 13px/1 var(--font-body); color: var(--fg); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 9px 14px; cursor: pointer;
+}
+.toggle[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.key { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; margin-block: 28px 12px; }
+.key h2 { font-size: 22px; margin-bottom: 10px; }
+.key ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.key li { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
+.key li > div { min-width: 0; }
+.code { font: 700 13px/1 var(--font-body); background: #14161c; color: #fff; border-radius: 999px; padding: 6px 0; text-align: center; }
+.key b { display: block; }
+.key span.d { color: var(--muted); font-size: 14px; }
+.key .bonus .code { background: transparent; color: var(--fg); border: 1.5px dashed var(--muted); }
+
+.denom { padding-block: 40px; border-top: 1px solid var(--rule); display: grid; gap: 18px; }
+.denom-head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; }
+.denom-num { font-family: var(--font-display); font-weight: 800; font-size: 56px; line-height: 1; color: var(--fg); }
+.denom-head h2 { font-size: 30px; font-style: italic; font-weight: 500; }
+.denom-head .chip { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.denom-head .chip i { width: 44px; height: 14px; border-radius: 3px; display: inline-block; }
+
+.sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 22px; }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+figcaption { font-size: 13px; color: var(--muted); }
+figcaption b { color: var(--fg); letter-spacing: .08em; text-transform: uppercase; font-size: 12px; margin-right: 6px; }
+.note-wrap { perspective: 1100px; }
+.note { display: block; width: 100%; height: auto; transition: transform .45s ease; filter: drop-shadow(0 10px 18px rgba(10, 14, 25, .22)); transform-origin: 50% 50%; }
+.specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 24px; margin: 0; }
+.specs div { min-width: 0; }
+.specs dt { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.specs dd { margin: 2px 0 0; font-size: 14px; }
+.specs .mono { font-family: var(--font-mono); font-size: 13px; }
+
+/* SVG note internals */
+.note text { font-family: var(--font-display); }
+.note text.mono { font-family: var(--font-mono); }
+.note text.sans { font-family: var(--font-body); }
+.note .callout { display: none; }
+.show-labels .note .callout { display: inline; }
+.note .csnum { fill: url(#csCopper); }
+.tilt .note .csnum, .note-wrap:hover .csnum { fill: url(#csGreen); }
+.tilt .note, .note-wrap:hover .note { transform: rotateY(-9deg) rotateX(5deg); }
+.note .wm { opacity: .13; transition: opacity .3s; }
+.backlight .note .wm { opacity: .62; }
+.note .uvshade { opacity: 0; transition: opacity .3s; }
+.uv .note .uvshade { opacity: .66; }
+.note .thread rect { fill: var(--thread); fill-opacity: .26; transition: fill-opacity .3s; }
+.backlight .note .thread rect { fill-opacity: .55; }
+.uv .note .thread rect { fill: var(--uv); fill-opacity: 1; }
+.uv .note .thread text { fill: #10121a; }
+@media (prefers-reduced-motion: reduce) { .note, .note .wm, .note .uvshade { transition: none; } }
+
+.system { padding-block: 40px; border-top: 1px solid var(--rule); display: grid; gap: 18px; }
+.system h2, .answers h2, .prod h2, .check h2 { font-size: 28px; }
+.swatches { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.swatch { display: grid; gap: 6px; font-size: 13px; }
+.swatch .bars { display: grid; grid-template-rows: 44px 22px 22px; border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); }
+.swatch b { font-family: var(--font-display); font-size: 20px; }
+.swatch span { color: var(--muted); }
+@media (max-width: 720px) { .swatches { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.answers { padding-block: 40px; border-top: 1px solid var(--rule); display: grid; gap: 28px; }
+.qa { display: grid; gap: 8px; max-width: 72ch; }
+.qa h3 { font-family: var(--font-body); font-size: 16px; font-weight: 700; }
+.qa p { font-size: 16px; }
+
+.prod, .check { padding-block: 40px; border-top: 1px solid var(--rule); display: grid; gap: 14px; }
+.boxes { display: flex; flex-wrap: wrap; gap: 10px 28px; list-style: none; margin: 0; padding: 0; }
+.boxes li, .check li { display: flex; gap: 10px; align-items: flex-start; }
+.box { flex: none; width: 20px; height: 20px; border: 2px solid var(--fg); border-radius: 4px; display: inline-grid; place-items: center; font-size: 14px; font-weight: 700; line-height: 1; margin-top: 1px; }
+.on .box { background: var(--fg); color: var(--bg); }
+.check ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-width: 72ch; }
+.check li span.n { color: var(--muted); font-size: 14px; display: block; }
+.prod p { color: var(--muted); max-width: 72ch; }
+.foot { color: var(--muted); font-size: 13px; padding-top: 24px; border-top: 1px solid var(--rule); }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="csCopper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7a3d14"/><stop offset=".5" stop-color="#c7894a"/><stop offset="1" stop-color="#6c3511"/>
+    </linearGradient>
+    <linearGradient id="csGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14503a"/><stop offset=".5" stop-color="#4fa57d"/><stop offset="1" stop-color="#0f4330"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<main class="wrap show-labels" id="board">
+  <header class="intro">
+    <p class="eyebrow">Macro Project · Part 2 · Currency Design Creation</p>
+    <h1>American Note Series <em>2026</em></h1>
+    <p>A redesign of all six U.S. notes, front and back. Each note has one theme drawn from the American story and its own color. Every note uses the same layout, so the security and accessibility features sit in the same place on every value.</p>
+  </header>
+
+  <div class="controls" role="group" aria-label="Display options">
+    <span class="label">Inspect</span>
+    <button class="toggle" id="t-labels" data-mode="show-labels" aria-pressed="true">Feature labels</button>
+    <button class="toggle" id="t-tilt" data-mode="tilt" aria-pressed="false">Tilt the notes</button>
+    <button class="toggle" id="t-light" data-mode="backlight" aria-pressed="false">Hold up to light</button>
+    <button class="toggle" id="t-uv" data-mode="uv" aria-pressed="false">UV light</button>
+  </div>
+
+  <section class="key" aria-label="Feature key">
+    <div>
+      <h2>Security features</h2>
+      <ol>
+        <li><span class="code">S1</span><div><b>Color-shifting numeral</b><span class="d">The large numeral at the lower right of the front is printed in color-shifting ink. It looks copper when the note lies flat and turns green when tilted. Copiers and printers can't reproduce the shift.</span></div></li>
+        <li><span class="code">S2</span><div><b>Denomination security thread</b><span class="d">A plastic strip embedded in the paper reads "USA" and the value. Its position is different on every note, and it glows its own color under UV light.</span></div></li>
+        <li><span class="code">S3</span><div><b>Watermark window</b><span class="d">An unprinted oval holds a faint copy of the note's main image. You can see it from both sides when you hold the note up to light.</span></div></li>
+        <li class="bonus"><span class="code">S4</span><div><b>Microprinting (extra)</b><span class="d">The border repeats "The United States of America" and the value in text too small to copy cleanly.</span></div></li>
+      </ol>
+    </div>
+    <div>
+      <h2>Accessibility features</h2>
+      <ol>
+        <li><span class="code">A1</span><div><b>Extra-large, high-contrast numeral</b><span class="d">A plain panel on the back holds a numeral more than half the note's height, printed in the darkest ink on an unprinted field, for people with low vision. The front repeats a large numeral at the top left.</span></div></li>
+        <li><span class="code">A2</span><div><b>Tactile dot code</b><span class="d">Raised dots on the short edge let blind users tell notes apart by touch: $1 has 1 dot, $5 has 2, $10 has 3, $20 has 4, $50 has 5 and $100 has 6.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <div id="gallery"></div>
+
+  <section class="system" aria-labelledby="sys-h">
+    <h2 id="sys-h">The color system</h2>
+    <p style="color:var(--muted);max-width:72ch">Every note uses three strengths of one hue: a dark ink for type and line work, a middle tone for the imagery, and a pale tint for the paper.</p>
+    <div class="swatches" id="swatches"></div>
+  </section>
+
+  <section class="answers" aria-labelledby="ans-h">
+    <h2 id="ans-h">Design consistency check</h2>
+    <div class="qa">
+      <h3>1. How does your color scheme create a consistent system across all denominations while remaining distinct for each value?</h3>
+      <p>Every note follows the same color formula: one hue in three strengths. A dark ink is used for text and line work, a middle tone for the main image, and a pale tint for the paper. Because every note is built the same way, the six read as one family. Only the hue changes: sage green for $1, violet for $5, amber for $10, teal for $20, crimson for $50 and navy for $100. I put values that are next to each other far apart on the color wheel, so notes that are easy to mix up, like the $5 and $10 or the $20 and $50, never look alike. Color is never the only cue. The large numerals, the tactile dots and the UV thread color back it up, so people who are color-blind can still tell the notes apart.</p>
+    </div>
+    <div class="qa">
+      <h3>2. How do your front and back designs work together as a cohesive unit?</h3>
+      <p>Each note tells one theme across both sides. The front shows the theme's symbol, like the torch for Liberty, the canyon for The Land and the rocket for Discovery. The back shows the wider scene around it: New York Harbor, the Colorado River, and Earth seen from the Moon. Both sides share the same frame, microprinted border, typefaces and color. The physical features line up through the paper. The watermark window, the security thread and the tactile dots sit in mirrored positions, so each is in the same spot whichever side you look at. The two sides also split the work. The front carries the main image and the color-shifting numeral. The back carries the serial numbers, both seals and the big accessibility numeral.</p>
+    </div>
+  </section>
+
+  <section class="prod" aria-labelledby="prod-h">
+    <h2 id="prod-h">Production notes</h2>
+    <ul class="boxes" aria-label="Format">
+      <li><span class="box" aria-hidden="true"></span>Hand-drawn</li>
+      <li class="on"><span class="box" aria-hidden="true">✓</span><b>Computer-generated</b></li>
+      <li><span class="box" aria-hidden="true"></span>Mixed media</li>
+    </ul>
+    <p>All notes are drawn as vector graphics in the same 2.61 : 1 proportion as today's notes (6.14 × 2.61 in). One shared template is used for every value, so the layout, feature positions and type are identical across the series. Each note is marked SPECIMEN because it's a design study.</p>
+  </section>
+
+  <section class="check" aria-labelledby="chk-h">
+    <h2 id="chk-h">Final design checklist</h2>
+    <ul>
+      <li class="on"><span class="box" aria-hidden="true">✓</span><div>All six denominations are complete (front and back)<span class="n">$1, $5, $10, $20, $50 and $100, 12 sides in all</span></div></li>
+      <li class="on"><span class="box" aria-hidden="true">✓</span><div>Three security features are clearly incorporated<span class="n">S1 color-shifting numeral, S2 security thread, S3 watermark, plus S4 microprinting</span></div></li>
+      <li class="on"><span class="box" aria-hidden="true">✓</span><div>Two accessibility features are clearly incorporated<span class="n">A1 large high-contrast numeral, A2 tactile dot code</span></div></li>
+      <li class="on"><span class="box" aria-hidden="true">✓</span><div>Colors are distinct for each denomination<span class="n">Six hues, with neighboring values far apart on the color wheel</span></div></li>
+      <li class="on"><span class="box" aria-hidden="true">✓</span><div>Denomination numbers are large and visible<span class="n">Four numerals on the front and three on the back, plus the value in words</span></div></li>
+      <li class="on"><span class="box" aria-hidden="true">✓</span><div>Designs are appropriate for all Americans<span class="n">Shared places, landscapes and ideas instead of individual people; motto "E Pluribus Unum"</span></div></li>
+      <li class="on"><span class="box" aria-hidden="true">✓</span><div>Designs are mounted for online display<span class="n">This page is the display board</span></div></li>
+      <li><span class="box" aria-hidden="true"></span><div>Part 1 question sheet is completed and submitted<span class="n">Submit this separately</span></div></li>
+    </ul>
+  </section>
+
+  <p class="foot">Original designs made for a class project. Not legal tender, and not based on any real note's artwork.</p>
+</main>
+
+<script>
+const BILLS = [
+  { v: 1, word: "ONE DOLLAR", theme: "Liberty", key: "liberty", front: "The Torch of Liberty", back: "New York Harbor at sunrise", colorName: "Sage green",
+    c: { ink: "#1f3d27", mid: "#4f7f58", tint: "#dfeadb", light: "#f2f7ef" }, uv: "#59c8ff", uvName: "blue", dots: 1, thread: 150, district: "B", city: "NEW YORK", serial: "SB 04718263 A" },
+  { v: 5, word: "FIVE DOLLARS", theme: "The Land", key: "canyon", front: "The Grand Canyon", back: "The Colorado River", colorName: "Violet",
+    c: { ink: "#35204f", mid: "#7256a0", tint: "#e8e0f2", light: "#f6f2fa" }, uv: "#ffe14d", uvName: "yellow", dots: 2, thread: 175, district: "J", city: "KANSAS CITY", serial: "SJ 25930417 B" },
+  { v: 10, word: "TEN DOLLARS", theme: "Discovery", key: "space", front: "Moon rocket launch", back: "Earthrise from the Moon", colorName: "Amber",
+    c: { ink: "#4f2a07", mid: "#c0782c", tint: "#f5e5cf", light: "#fbf4e9" }, uv: "#ff8a3c", uvName: "orange", dots: 3, thread: 200, district: "G", city: "CHICAGO", serial: "SG 61842095 C" },
+  { v: 20, word: "TWENTY DOLLARS", theme: "Wild America", key: "forest", front: "Coast redwoods", back: "Half Dome and a mountain lake", colorName: "Teal",
+    c: { ink: "#0d3642", mid: "#2b7a90", tint: "#d9eaef", light: "#eff6f8" }, uv: "#3dff8a", uvName: "green", dots: 4, thread: 225, district: "L", city: "SAN FRANCISCO", serial: "SL 39027584 D" },
+  { v: 50, word: "FIFTY DOLLARS", theme: "Democracy", key: "capitol", front: "The Capitol dome", back: "“We the People”", colorName: "Crimson",
+    c: { ink: "#4a1018", mid: "#a63a46", tint: "#f2dcde", light: "#faf0f1" }, uv: "#ff5cc8", uvName: "pink", dots: 5, thread: 250, district: "E", city: "RICHMOND", serial: "SE 70365128 E" },
+  { v: 100, word: "ONE HUNDRED DOLLARS", theme: "Unity", key: "bridge", front: "The Golden Gate Bridge", back: "Fifty stars, one nation", colorName: "Navy",
+    c: { ink: "#121b3a", mid: "#3a4d8c", tint: "#dfe2ef", light: "#f1f2f8" }, uv: "#b98cff", uvName: "violet", dots: 6, thread: 275, district: "K", city: "DALLAS", serial: "SK 85219406 F" },
+];
+
+const f1 = n => n.toFixed(1);
+function rng(seed) { let s = seed; return () => (s = s * 16807 % 2147483647) / 2147483647; }
+function starfield(n, w, h, seed, fill) {
+  const r = rng(seed); let s = "";
+  for (let i = 0; i < n; i++) s += `<circle cx="${f1(r() * w)}" cy="${f1(r() * h)}" r="${f1(r() * 1.5 + .4)}" fill="${fill}"/>`;
+  return s;
+}
+function star(cx, cy, r, fill) {
+  let p = "";
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .42 : r; p += f1(cx + rr * Math.cos(a)) + "," + f1(cy + rr * Math.sin(a)) + " "; }
+  return `<polygon points="${p}" fill="${fill}"/>`;
+}
+function pine(x, base, ht, fill) {
+  let s = `<rect x="${x - 2}" y="${base - 10}" width="4" height="10" fill="${fill}"/>`;
+  for (let i = 0; i < 4; i++) {
+    const w = ht * (.42 - i * .08), y = base - 8 - i * ht * .22;
+    s += `<polygon points="${f1(x - w)},${f1(y)} ${f1(x + w)},${f1(y)} ${x},${f1(y - ht * .38)}" fill="${fill}"/>`;
+  }
+  return s;
+}
+
+/* ---------- Scenes: fronts draw in a 400x300 box, backs in 660x280 ---------- */
+const SCENES = {
+  liberty: {
+    front: (c, h) => {
+      let rays = "";
+      for (let i = 0; i < 32; i++) { const a = i / 32 * Math.PI * 2; rays += `<line x1="200" y1="80" x2="${f1(200 + Math.cos(a) * 420)}" y2="${f1(80 + Math.sin(a) * 420)}" stroke="${c.mid}" stroke-width="${i % 2 ? 1.5 : 5}" opacity=".32"/>`; }
+      return `<rect width="400" height="300" fill="${c.tint}"/>${rays}
+        <circle cx="200" cy="80" r="64" fill="${c.light}" opacity=".9"/>
+        <path d="M200 20 C230 52 238 88 214 114 C222 94 208 80 202 66 C196 88 178 94 186 114 C164 88 170 54 200 20Z" fill="${c.mid}"/>
+        <path d="M200 20 C230 52 238 88 214 114 C222 94 208 80 202 66 C196 88 178 94 186 114 C164 88 170 54 200 20Z" fill="${h}" opacity=".25"/>
+        <path d="M201 50 C215 72 215 94 204 110 C204 98 198 90 197 84 C192 94 190 102 194 110 C183 92 188 72 201 50Z" fill="${c.light}"/>
+        <path d="M152 114 L248 114 L232 146 L168 146Z" fill="${c.ink}"/>
+        <rect x="164" y="146" width="72" height="11" rx="3" fill="${c.mid}"/>
+        <path d="M172 157 L228 157 L213 300 L187 300Z" fill="${c.ink}"/>
+        <path d="M200 157 L228 157 L213 300 L200 300Z" fill="${c.light}" opacity=".14"/>
+        <rect x="178" y="196" width="44" height="7" fill="${c.mid}"/><rect x="182" y="246" width="36" height="7" fill="${c.mid}"/>`;
+    },
+    back: (c, h) => {
+      let rays = "", sky = "", rip = "";
+      for (let i = 0; i < 22; i++) { const a = Math.PI + i / 21 * Math.PI; rays += `<line x1="220" y1="190" x2="${f1(220 + Math.cos(a) * 520)}" y2="${f1(190 + Math.sin(a) * 520)}" stroke="${c.mid}" stroke-width="${i % 2 ? 1.5 : 4}" opacity=".28"/>`; }
+      const r = rng(7);
+      for (let x = 0; x < 150; x += 16) { const ht = 40 + r() * 70; sky += `<rect x="${x}" y="${f1(190 - ht)}" width="13" height="${f1(ht)}" fill="${c.ink}" opacity=".55"/>`; }
+      for (let y = 202; y < 280; y += 11) rip += `<line x1="${f1(r() * 120)}" y1="${y}" x2="${f1(420 + r() * 240)}" y2="${y}" stroke="${c.light}" stroke-width="2" stroke-dasharray="${f1(20 + r() * 30)} 14" opacity=".8"/>`;
+      return `<rect width="660" height="280" fill="${c.tint}"/>${rays}
+        <circle cx="220" cy="190" r="72" fill="${c.light}" stroke="${c.mid}" stroke-width="3"/>
+        ${sky}
+        <rect y="190" width="660" height="90" fill="${c.mid}" opacity=".45"/>
+        <rect y="190" width="660" height="90" fill="${h}" opacity=".18"/>${rip}
+        <ellipse cx="500" cy="196" rx="112" ry="14" fill="${c.ink}"/>
+        <polygon points="470,196 530,196 521,150 479,150" fill="${c.ink}"/>
+        <rect x="474" y="141" width="52" height="10" fill="${c.ink}"/>
+        <path d="M485 141 L515 141 L507 80 L493 80Z" fill="${c.ink}"/>
+        <circle cx="500" cy="72" r="8" fill="${c.ink}"/>
+        <g stroke="${c.ink}" stroke-width="2.5" stroke-linecap="round"><line x1="500" y1="64" x2="500" y2="54"/><line x1="495" y1="65" x2="489" y2="57"/><line x1="505" y1="65" x2="511" y2="57"/><line x1="492" y1="69" x2="483" y2="65"/><line x1="508" y1="69" x2="517" y2="65"/></g>
+        <line x1="506" y1="88" x2="521" y2="42" stroke="${c.ink}" stroke-width="7" stroke-linecap="round"/>
+        <ellipse cx="522" cy="33" rx="6" ry="10" fill="${c.mid}"/>
+        <rect x="484" y="96" width="9" height="18" fill="${c.mid}" transform="rotate(-12 488 105)"/>`;
+    },
+  },
+  canyon: {
+    front: (c, h) => `<rect width="400" height="300" fill="${c.tint}"/>
+      <circle cx="300" cy="70" r="32" fill="${c.light}" stroke="${c.mid}" stroke-width="2"/>
+      <polygon points="0,150 40,140 70,145 70,128 132,128 140,145 220,140 230,118 300,118 310,140 400,134 400,300 0,300" fill="${c.mid}" opacity=".3"/>
+      <polygon points="0,190 50,185 60,164 120,164 135,190 200,185 210,158 262,158 272,180 340,178 350,152 400,156 400,300 0,300" fill="${c.mid}" opacity=".6"/>
+      <polygon points="0,190 50,185 60,164 120,164 135,190 200,185 210,158 262,158 272,180 340,178 350,152 400,156 400,300 0,300" fill="${h}" opacity=".18"/>
+      <polygon points="0,236 80,230 95,204 152,204 162,232 260,240 276,214 332,211 346,238 400,236 400,300 0,300" fill="${c.ink}" opacity=".8"/>
+      <g stroke="${c.light}" stroke-width="1.2" opacity=".35"><line x1="95" y1="214" x2="152" y2="214"/><line x1="90" y1="222" x2="158" y2="222"/><line x1="276" y1="224" x2="332" y2="224"/></g>
+      <polygon points="0,272 120,262 200,276 300,264 400,272 400,300 0,300" fill="${c.ink}"/>`,
+    back: (c, h) => `<rect width="660" height="280" fill="${c.tint}"/>
+      <circle cx="520" cy="58" r="30" fill="${c.light}" stroke="${c.mid}" stroke-width="2"/>
+      <polygon points="0,122 80,112 100,90 200,90 215,116 330,110 345,86 450,86 470,112 660,104 660,280 0,280" fill="${c.mid}" opacity=".3"/>
+      <polygon points="140,150 520,145 450,200 250,280 200,200" fill="${c.mid}" opacity=".55"/>
+      <path d="M300 120 C270 160 360 185 310 220 S270 265 300 280 L360 280 C340 255 390 230 350 205 S320 150 320 120Z" fill="${c.light}" stroke="${c.mid}" stroke-width="2"/>
+      <polygon points="0,140 140,150 200,200 250,280 0,280" fill="${c.ink}" opacity=".78"/>
+      <polygon points="0,140 140,150 200,200 250,280 0,280" fill="${h}" opacity=".25"/>
+      <polygon points="660,130 520,145 450,200 410,280 660,280" fill="${c.ink}" opacity=".78"/>
+      <polygon points="660,130 520,145 450,200 410,280 660,280" fill="${h}" opacity=".25"/>`,
+  },
+  space: {
+    front: (c) => {
+      let tower = "";
+      for (let y = 70; y < 250; y += 18) tower += `<line x1="128" y1="${y}" x2="150" y2="${y + 18}" stroke="${c.mid}" stroke-width="1.5"/><line x1="150" y1="${y}" x2="128" y2="${y + 18}" stroke="${c.mid}" stroke-width="1.5"/>`;
+      return `<rect width="400" height="300" fill="${c.ink}"/>${starfield(70, 400, 230, 11, c.light)}
+        <rect x="126" y="66" width="4" height="190" fill="${c.mid}"/><rect x="148" y="66" width="4" height="190" fill="${c.mid}"/>${tower}
+        <line x1="150" y1="120" x2="184" y2="120" stroke="${c.mid}" stroke-width="3"/>
+        <path d="M184 64 Q200 8 216 64Z" fill="${c.light}"/>
+        <rect x="184" y="64" width="32" height="172" fill="${c.light}"/>
+        <rect x="200" y="64" width="16" height="172" fill="${c.mid}" opacity=".35"/>
+        <rect x="184" y="104" width="32" height="9" fill="${c.mid}"/><rect x="184" y="168" width="32" height="9" fill="${c.mid}"/>
+        <path d="M184 202 L164 244 L184 236Z" fill="${c.mid}"/><path d="M216 202 L236 244 L216 236Z" fill="${c.mid}"/>
+        <rect x="190" y="236" width="20" height="8" fill="${c.mid}"/>
+        <path d="M190 244 L210 244 L200 284Z" fill="${c.mid}"/>
+        <g fill="${c.tint}" opacity=".92"><circle cx="160" cy="282" r="30"/><circle cx="200" cy="292" r="34"/><circle cx="244" cy="280" r="28"/><circle cx="120" cy="296" r="24"/><circle cx="284" cy="296" r="26"/></g>`;
+    },
+    back: (c, h, u) => `<rect width="660" height="280" fill="${c.ink}"/>${starfield(90, 660, 190, 23, c.light)}
+      <clipPath id="${u}-e"><circle cx="480" cy="88" r="56"/></clipPath>
+      <circle cx="480" cy="88" r="56" fill="${c.mid}"/>
+      <g clip-path="url(#${u}-e)">
+        <path d="M444 64 q18 -18 36 -6 q12 12 -6 24 q-18 6 -30 -18Z M488 98 q22 -6 28 12 q-6 22 -24 16 q-12 -12 -4 -28Z M452 112 q12 -4 16 8 q-6 10 -14 4Z" fill="${c.tint}" opacity=".85"/>
+        <circle cx="508" cy="102" r="58" fill="${c.ink}" opacity=".55"/>
+      </g>
+      <path d="M0 200 Q160 170 330 190 T660 184 L660 280 L0 280Z" fill="${c.tint}"/>
+      <g fill="${c.mid}" opacity=".35"><ellipse cx="110" cy="232" rx="34" ry="7"/><ellipse cx="430" cy="252" rx="44" ry="9"/><ellipse cx="570" cy="214" rx="22" ry="5"/><ellipse cx="300" cy="212" rx="16" ry="4"/></g>
+      <g transform="translate(250 248) rotate(-14)">
+        <rect x="-30" y="-11" width="60" height="22" rx="11" fill="${c.ink}" opacity=".7"/>
+        <g stroke="${c.tint}" stroke-width="2.5">${[-20, -12, -4, 4, 12, 20].map(x => `<line x1="${x}" y1="-8" x2="${x}" y2="8"/>`).join("")}</g>
+      </g>`,
+  },
+  forest: {
+    front: (c, h) => {
+      const trunks = [[48, 22], [128, 30], [236, 26], [330, 34]];
+      let t = "";
+      for (const [x, w] of trunks) {
+        t += `<rect x="${x}" y="0" width="${w}" height="300" fill="${c.ink}" opacity=".88"/><rect x="${x + w * .55}" y="0" width="${f1(w * .45)}" height="300" fill="${h}" opacity=".35"/>`;
+        for (let i = 0; i < 3; i++) t += `<polygon points="${x - 38},${40 + i * 34} ${x + w + 38},${40 + i * 34} ${x + w / 2},${4 + i * 34}" fill="${c.ink}" opacity=".75"/>`;
+      }
+      let back = "";
+      for (let x = 10; x < 400; x += 46) back += pine(x, 270, 120, c.mid);
+      return `<rect width="400" height="300" fill="${c.tint}"/>
+        <polygon points="170,0 230,0 330,300 200,300" fill="${c.light}" opacity=".7"/>
+        <g opacity=".45">${back}</g>${t}
+        <path d="M0 262 Q100 250 200 266 T400 258 L400 300 L0 300Z" fill="${c.ink}"/>
+        <g stroke="${c.mid}" stroke-width="2" fill="none"><path d="M90 268 q-14 -18 -30 -16"/><path d="M90 268 q14 -20 30 -18"/><path d="M300 266 q-12 -16 -28 -14"/><path d="M300 266 q12 -18 26 -16"/></g>`;
+    },
+    back: (c, h, u) => {
+      const mts = `<path d="M120 180 L200 92 Q250 44 300 70 L305 180Z" fill="${c.mid}"/>
+        <path d="M200 92 Q250 44 300 70 L305 180 L268 180Z" fill="${h}" opacity=".22"/>
+        <polygon points="280,180 380,74 480,180" fill="${c.mid}" opacity=".78"/>
+        <polygon points="380,74 360,96 372,92 380,100 390,92 400,96" fill="${c.light}"/>
+        <polygon points="420,180 520,104 660,180" fill="${c.mid}" opacity=".5"/>`;
+      let trees = "";
+      for (const [x, ht] of [[40, 150], [86, 112], [600, 160], [636, 120], [560, 92]]) trees += pine(x, 268, ht, c.ink);
+      return `<rect width="660" height="280" fill="${c.tint}"/>
+        <circle cx="560" cy="56" r="26" fill="${c.light}" stroke="${c.mid}" stroke-width="2"/>${mts}
+        <clipPath id="${u}-lake"><rect y="180" width="660" height="70"/></clipPath>
+        <rect y="180" width="660" height="70" fill="${c.light}"/>
+        <g clip-path="url(#${u}-lake)"><g transform="translate(0 360) scale(1 -1)" opacity=".28">${mts}</g></g>
+        <g stroke="${c.mid}" stroke-width="1.5" opacity=".5"><line x1="180" y1="196" x2="260" y2="196"/><line x1="340" y1="206" x2="440" y2="206"/><line x1="220" y1="222" x2="300" y2="222"/></g>
+        <path d="M0 240 Q200 230 330 246 T660 238 L660 280 L0 280Z" fill="${c.ink}" opacity=".9"/>${trees}`;
+    },
+  },
+  capitol: {
+    front: (c, h) => {
+      let cols = "", drum = "", ribs = "", steps = "";
+      for (let x = 72; x <= 328; x += 16) cols += `<rect x="${x}" y="214" width="6" height="46" fill="${c.mid}"/>`;
+      for (let x = 140; x <= 256; x += 12) drum += `<rect x="${x}" y="148" width="4" height="50" fill="${c.mid}"/>`;
+      for (const x of [150, 172, 200, 228, 250]) ribs += `<path d="M${x} 146 Q${f1(200 + (x - 200) * .55)} 70 200 58" fill="none" stroke="${c.mid}" stroke-width="2"/>`;
+      for (let i = 0; i < 4; i++) steps += `<rect x="${40 - i * 14}" y="${262 + i * 10}" width="${320 + i * 28}" height="10" fill="${c.mid}" opacity="${.5 + i * .12}"/>`;
+      return `<rect width="400" height="300" fill="${c.tint}"/>
+        <circle cx="200" cy="110" r="120" fill="${c.light}" opacity=".7"/>
+        <rect x="60" y="200" width="280" height="62" fill="${c.light}" stroke="${c.ink}" stroke-width="2"/>${cols}
+        <rect x="56" y="200" width="288" height="12" fill="${c.ink}"/>
+        <polygon points="160,200 200,180 240,200" fill="${c.light}" stroke="${c.ink}" stroke-width="2"/>
+        <rect x="128" y="140" width="144" height="60" fill="${c.light}" stroke="${c.ink}" stroke-width="2"/>${drum}
+        <rect x="124" y="138" width="152" height="10" fill="${c.ink}"/>
+        <path d="M132 140 Q132 60 200 54 Q268 60 268 140Z" fill="${c.light}" stroke="${c.ink}" stroke-width="2"/>
+        <path d="M200 54 Q268 60 268 140 L200 140Z" fill="${h}" opacity=".22"/>${ribs}
+        <rect x="188" y="34" width="24" height="22" fill="${c.light}" stroke="${c.ink}" stroke-width="2"/>
+        <rect x="196" y="18" width="8" height="16" fill="${c.ink}"/><circle cx="200" cy="15" r="5" fill="${c.ink}"/>${steps}`;
+    },
+    back: (c, h) => {
+      let lines = "";
+      for (let i = 0; i < 6; i++) lines += `<rect x="190" y="${136 + i * 16}" width="${i === 5 ? 160 : 280}" height="4" rx="2" fill="${c.mid}" opacity=".45"/>`;
+      return `<rect width="660" height="280" fill="${c.tint}"/>
+        <rect width="660" height="280" fill="${h}" opacity=".06"/>
+        <rect x="150" y="36" width="360" height="208" fill="${c.light}" stroke="${c.ink}" stroke-width="2"/>
+        <rect x="134" y="22" width="392" height="24" rx="12" fill="${c.mid}" stroke="${c.ink}" stroke-width="2"/>
+        <rect x="134" y="234" width="392" height="24" rx="12" fill="${c.mid}" stroke="${c.ink}" stroke-width="2"/>
+        <text x="330" y="112" text-anchor="middle" font-size="46" font-style="italic" font-weight="600" fill="${c.ink}">We the People</text>
+        ${lines}
+        <path d="M560 252 C540 200 560 120 622 36 C616 110 600 190 568 252Z" fill="${c.ink}" opacity=".88"/>
+        <line x1="562" y1="262" x2="622" y2="36" stroke="${c.light}" stroke-width="1.5"/>
+        <path d="M556 252 L566 252 L560 270Z" fill="${c.ink}"/>`;
+    },
+  },
+  bridge: {
+    front: (c, h) => {
+      let sus = "";
+      const seg = (p0, p1, p2) => {
+        for (let t = .06; t < 1; t += .06) {
+          const x = (1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0];
+          const y = (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1];
+          if (y < 186) sus += `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(x)}" y2="186" stroke="${c.ink}" stroke-width="1"/>`;
+        }
+      };
+      seg([0, 150], [70, 178], [120, 62]); seg([120, 62], [200, 250], [280, 62]); seg([280, 62], [330, 178], [400, 150]);
+      const tower = x => `<rect x="${x - 9}" y="56" width="7" height="190" fill="${c.ink}"/><rect x="${x + 2}" y="56" width="7" height="190" fill="${c.ink}"/>
+        <rect x="${x - 9}" y="70" width="18" height="5" fill="${c.ink}"/><rect x="${x - 9}" y="110" width="18" height="5" fill="${c.ink}"/><rect x="${x - 9}" y="150" width="18" height="5" fill="${c.ink}"/>`;
+      return `<rect width="400" height="300" fill="${c.tint}"/>
+        <circle cx="320" cy="150" r="46" fill="${c.light}" stroke="${c.mid}" stroke-width="2"/>
+        <path d="M0 196 Q60 150 130 176 Q200 196 270 168 Q340 140 400 186 L400 300 L0 300Z" fill="${c.mid}" opacity=".35"/>
+        <rect y="200" width="400" height="100" fill="${c.mid}" opacity=".45"/>
+        <rect y="200" width="400" height="100" fill="${h}" opacity=".15"/>
+        <g stroke="${c.light}" stroke-width="2" opacity=".75"><line x1="30" y1="230" x2="110" y2="230"/><line x1="160" y1="252" x2="260" y2="252"/><line x1="280" y1="226" x2="370" y2="226"/><line x1="60" y1="272" x2="150" y2="272"/></g>
+        ${sus}${tower(120)}${tower(280)}
+        <path d="M0 150 Q70 178 120 62 Q200 250 280 62 Q330 178 400 150" fill="none" stroke="${c.ink}" stroke-width="3.5"/>
+        <rect y="184" width="400" height="9" fill="${c.ink}"/>`;
+    },
+    back: (c, h) => {
+      let stars = "";
+      for (let i = 0; i < 50; i++) { const a = -Math.PI / 2 + i / 50 * Math.PI * 2; stars += star(330 + Math.cos(a) * 108, 140 + Math.sin(a) * 108, 7, c.ink); }
+      let rays = "";
+      for (let i = 0; i < 48; i++) { const a = i / 48 * Math.PI * 2; rays += `<line x1="${f1(330 + Math.cos(a) * 128)}" y1="${f1(140 + Math.sin(a) * 128)}" x2="${f1(330 + Math.cos(a) * 420)}" y2="${f1(140 + Math.sin(a) * 420)}" stroke="${c.mid}" stroke-width="${i % 2 ? 1 : 3}" opacity=".3"/>`; }
+      return `<rect width="660" height="280" fill="${c.tint}"/>${rays}
+        <circle cx="330" cy="140" r="126" fill="${c.light}" stroke="${c.mid}" stroke-width="3"/>
+        <circle cx="330" cy="140" r="119" fill="none" stroke="${c.mid}" stroke-width="1"/>${stars}
+        <circle cx="330" cy="140" r="88" fill="${c.light}" stroke="${c.ink}" stroke-width="2"/>
+        <text x="330" y="98" text-anchor="middle" class="sans" font-size="13" font-weight="700" letter-spacing="5" fill="${c.mid}">ONE NATION</text>
+        <text x="330" y="164" text-anchor="middle" font-size="76" font-weight="800" fill="${c.ink}">50</text>
+        <text x="330" y="192" text-anchor="middle" class="sans" font-size="14" font-weight="700" letter-spacing="6" fill="${c.ink}">STATES</text>`;
+    },
+  },
+};
+
+/* ---------- Shared note parts ---------- */
+function guilloche(cx, cy, R, c, op) {
+  let s = `<g fill="none" stroke="${c.mid}" stroke-width="1.1" opacity="${op}">`;
+  for (let j = 0; j < 10; j++) {
+    let d = ""; const base = R * (.55 + j * .045), amp = R * .16;
+    for (let i = 0; i <= 240; i++) {
+      const t = i / 240 * Math.PI * 2, r = base + amp * Math.sin(9 * t + j * .35);
+      d += (i ? "L" : "M") + f1(cx + r * Math.cos(t)) + " " + f1(cy + r * Math.sin(t) * .82);
+    }
+    s += `<path d="${d}Z"/>`;
+  }
+  return s + "</g>";
+}
+function frame(b) {
+  const c = b.c, m = `THE UNITED STATES OF AMERICA ★ ${b.word} ★ `.repeat(8);
+  return `<rect width="1560" height="660" rx="22" fill="${c.light}"/>
+    <rect x="16" y="16" width="1528" height="628" rx="14" fill="none" stroke="${c.mid}" stroke-width="22" stroke-opacity=".22"/>
+    <rect x="4" y="4" width="1552" height="652" rx="20" fill="none" stroke="${c.ink}" stroke-width="2.5"/>
+    <rect x="28" y="28" width="1504" height="604" rx="8" fill="none" stroke="${c.ink}" stroke-width="1.5"/>
+    <g fill="${c.ink}" font-size="8">
+      <text class="mono" x="40" y="19" textLength="1480" lengthAdjust="spacingAndGlyphs">${m}</text>
+      <text class="mono" x="40" y="647" textLength="1480" lengthAdjust="spacingAndGlyphs">${m}</text>
+      <text class="mono" transform="translate(19 620) rotate(-90)" textLength="580" lengthAdjust="spacingAndGlyphs">${m.slice(0, 120)}</text>
+      <text class="mono" transform="translate(1541 40) rotate(90)" textLength="580" lengthAdjust="spacingAndGlyphs">${m.slice(0, 120)}</text>
+    </g>`;
+}
+function tag(x, y, label, anchor = "middle") {
+  const w = label.length * 12 + 30, hh = 36;
+  const x0 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2;
+  return `<g class="callout"><rect x="${f1(x0)}" y="${y - hh / 2}" width="${f1(w)}" height="${hh}" rx="18" fill="#14161c" stroke="#ffffff" stroke-width="2"/>
+    <text class="sans" x="${f1(x0 + w / 2)}" y="${y + 7}" text-anchor="middle" font-size="19" font-weight="700" fill="#ffffff">${label}</text></g>`;
+}
+function thread(b) {
+  const T = b.thread, txt = `USA ${b.v} ★ `.repeat(40);
+  return `<g class="thread" style="--thread:${b.c.ink};--uv:${b.uv}">
+    <rect x="${T - 8}" y="5" width="16" height="650"/>
+    <text class="sans" transform="translate(${T - 4} 14) rotate(90)" font-size="10" font-weight="700" fill="${b.c.light}" textLength="632" lengthAdjust="spacingAndGlyphs">${txt.slice(0, 110)}</text>
+  </g>`;
+}
+function watermark(b, id) {
+  return `<ellipse cx="1250" cy="300" rx="108" ry="138" fill="#ffffff" opacity=".6"/>
+    <g class="wm" clip-path="url(#${id}-wm)"><svg x="1142" y="162" width="216" height="276" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">${SCENES[b.key].front(b.c, `url(#${id}-h)`, id + "w")}</svg></g>
+    <ellipse cx="1250" cy="300" rx="108" ry="138" fill="none" stroke="${b.c.mid}" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+}
+function dots(b) {
+  const gap = 40, y0 = 340 - (b.dots - 1) * gap / 2; let s = `<g class="tactile">`;
+  for (let i = 0; i < b.dots; i++) {
+    const cy = y0 + i * gap;
+    s += `<circle cx="64" cy="${cy + 3}" r="12" fill="#000000" opacity=".2"/><circle cx="62" cy="${cy}" r="12" fill="${b.c.ink}"/><circle cx="58" cy="${cy - 4}" r="4" fill="#ffffff" opacity=".55"/>`;
+  }
+  return s + "</g>";
+}
+function defs(b, id) {
+  return `<defs>
+    <pattern id="${id}-h" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><rect width="2" height="7" fill="${b.c.ink}"/></pattern>
+    <clipPath id="${id}-wm"><ellipse cx="1250" cy="300" rx="108" ry="138"/></clipPath>
+    <clipPath id="${id}-art"><ellipse cx="560" cy="340" rx="250" ry="190"/></clipPath>
+    <clipPath id="${id}-scene"><rect x="460" y="165" width="660" height="280" rx="10"/></clipPath>
+  </defs>`;
+}
+const specimen = c => `<text x="780" y="400" text-anchor="middle" transform="rotate(-11 780 400)" font-size="128" font-weight="800" letter-spacing="34" fill="${c.ink}" opacity=".05">SPECIMEN</text>`;
+const uvshade = `<rect class="uvshade" width="1560" height="660" rx="22" fill="#0b0720"/>`;
+
+function noteFront(b) {
+  const c = b.c, id = `f${b.v}`, n = String(b.v), T = b.thread;
+  return `<svg class="note" viewBox="0 0 1560 660" role="img" aria-label="Front of the $${n} note: ${b.front}">
+    ${defs(b, id)}${frame(b)}
+    ${guilloche(982, 340, 150, c, .22)}
+    <text x="780" y="100" text-anchor="middle" font-size="44" font-weight="700" letter-spacing="7" fill="${c.ink}">THE UNITED STATES OF AMERICA</text>
+    <ellipse cx="560" cy="340" rx="266" ry="206" fill="none" stroke="${c.mid}" stroke-width="12" stroke-dasharray="2 5" opacity=".75"/>
+    <ellipse cx="560" cy="340" rx="250" ry="190" fill="${c.tint}"/>
+    <g clip-path="url(#${id}-art)"><svg x="310" y="150" width="500" height="380" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">${SCENES[b.key].front(c, `url(#${id}-h)`, id + "a")}</svg></g>
+    <ellipse cx="560" cy="340" rx="250" ry="190" fill="none" stroke="${c.ink}" stroke-width="3"/>
+    <text x="560" y="606" text-anchor="middle" font-size="30" font-weight="700" letter-spacing="5" fill="${c.ink}">${b.word}</text>
+    <text x="982" y="205" text-anchor="middle" class="sans" font-size="16" font-weight="700" letter-spacing="3.5" fill="${c.ink}">FEDERAL RESERVE NOTE</text>
+    <line x1="892" y1="224" x2="1072" y2="224" stroke="${c.mid}" stroke-width="2"/>
+    <text x="982" y="296" text-anchor="middle" font-size="46" font-style="italic" font-weight="600" fill="${c.ink}">${b.theme}</text>
+    <text x="982" y="336" text-anchor="middle" class="sans" font-size="14" font-weight="600" letter-spacing="2" fill="${c.mid}">${b.front.toUpperCase()}</text>
+    <text x="982" y="410" text-anchor="middle" class="sans" font-size="15" font-weight="700" letter-spacing="4" fill="${c.ink}">SERIES 2026</text>
+    <text x="982" y="452" text-anchor="middle" class="sans" font-size="11.5" letter-spacing="1.5" fill="${c.ink}">THIS NOTE IS LEGAL TENDER</text>
+    <text x="982" y="470" text-anchor="middle" class="sans" font-size="11.5" letter-spacing="1.5" fill="${c.ink}">FOR ALL DEBTS, PUBLIC AND PRIVATE</text>
+    ${watermark(b, id)}
+    <text x="58" y="152" font-size="80" font-weight="800" fill="${c.ink}">${n}</text>
+    <text x="1500" y="150" text-anchor="end" font-size="72" font-weight="800" fill="${c.ink}">${n}</text>
+    <text x="58" y="618" font-size="66" font-weight="800" fill="${c.mid}">${n}</text>
+    <text class="csnum" x="1494" y="622" text-anchor="end" font-size="190" font-weight="800">${n}</text>
+    ${dots(b)}${specimen(c)}${uvshade}${thread(b)}
+    ${tag(1330, 470, "S1 Color-shift ink")}
+    ${tag(T, 520, "S2 Thread")}
+    ${tag(1250, 300, "S3 Watermark")}
+    ${tag(1290, 46, "S4 Microprint")}
+    ${tag(58, 186, "A1 Large numeral", "start")}
+    ${tag(90, 340, "A2 Tactile dots", "start")}
+  </svg>`;
+}
+
+function fedSeal(b, cx, cy, id) {
+  const c = b.c;
+  return `<g>
+    <circle cx="${cx}" cy="${cy}" r="58" fill="${c.light}" stroke="${c.ink}" stroke-width="3"/>
+    <circle cx="${cx}" cy="${cy}" r="42" fill="none" stroke="${c.ink}" stroke-width="1.5"/>
+    <path id="${id}-fs" d="M${cx - 46} ${cy} A46 46 0 1 1 ${cx + 46} ${cy} A46 46 0 1 1 ${cx - 46} ${cy}" fill="none"/>
+    <text class="sans" font-size="10" font-weight="700" fill="${c.ink}"><textPath href="#${id}-fs" textLength="282" lengthAdjust="spacingAndGlyphs">FEDERAL RESERVE BANK OF ${b.city} ★</textPath></text>
+    <text x="${cx}" y="${cy + 15}" text-anchor="middle" font-size="44" font-weight="800" fill="${c.mid}">${b.district}</text>
+  </g>`;
+}
+function treasurySeal(b, cx, cy, id) {
+  const c = b.c;
+  return `<g>
+    <circle cx="${cx}" cy="${cy}" r="58" fill="${c.light}" stroke="${c.mid}" stroke-width="3"/>
+    <circle cx="${cx}" cy="${cy}" r="42" fill="none" stroke="${c.mid}" stroke-width="1.5"/>
+    <path id="${id}-ts" d="M${cx - 46} ${cy} A46 46 0 1 1 ${cx + 46} ${cy} A46 46 0 1 1 ${cx - 46} ${cy}" fill="none"/>
+    <text class="sans" font-size="10" font-weight="700" fill="${c.mid}"><textPath href="#${id}-ts" textLength="282" lengthAdjust="spacingAndGlyphs">THE DEPARTMENT OF THE TREASURY ★ 1789 ★</textPath></text>
+    <path d="M${cx - 22} ${cy - 26} h44 v22 q0 24 -22 32 q-22 -8 -22 -32Z" fill="${c.tint}" stroke="${c.mid}" stroke-width="2"/>
+    <path d="M${cx - 20} ${cy + 2} L${cx} ${cy - 10} L${cx + 20} ${cy + 2}" fill="none" stroke="${c.mid}" stroke-width="5"/>
+    <line x1="${cx - 11}" y1="${cy - 19}" x2="${cx + 11}" y2="${cy - 19}" stroke="${c.mid}" stroke-width="2"/>
+    <path d="M${cx - 15} ${cy - 18} q4 6 8 0 M${cx + 7} ${cy - 18} q4 6 8 0" fill="none" stroke="${c.mid}" stroke-width="1.5"/>
+    <circle cx="${cx - 6}" cy="${cy + 14}" r="3.5" fill="none" stroke="${c.mid}" stroke-width="2"/>
+    <line x1="${cx - 2}" y1="${cy + 14}" x2="${cx + 10}" y2="${cy + 14}" stroke="${c.mid}" stroke-width="2"/>
+  </g>`;
+}
+
+function noteBack(b) {
+  const c = b.c, id = `b${b.v}`, n = String(b.v), mirror = `matrix(-1 0 0 1 1560 0)`;
+  const big = n.length === 1 ? { fs: 340, tl: "" } : n.length === 2 ? { fs: 250, tl: ` textLength="262" lengthAdjust="spacingAndGlyphs"` } : { fs: 205, tl: ` textLength="272" lengthAdjust="spacingAndGlyphs"` };
+  return `<svg class="note" viewBox="0 0 1560 660" role="img" aria-label="Back of the $${n} note: ${b.back}">
+    ${defs(b, id)}${frame(b)}
+    <text x="780" y="98" text-anchor="middle" font-size="40" font-weight="700" letter-spacing="7" fill="${c.ink}">THE UNITED STATES OF AMERICA</text>
+    <text x="780" y="136" text-anchor="middle" class="sans" font-size="15" font-weight="700" letter-spacing="9" fill="${c.mid}">E PLURIBUS UNUM</text>
+    <text class="mono" x="58" y="100" font-size="24" fill="${c.mid}">${b.serial}</text>
+    <text class="mono" x="1120" y="624" text-anchor="end" font-size="24" fill="${c.mid}">${b.serial}</text>
+    <rect x="452" y="157" width="676" height="296" rx="14" fill="none" stroke="${c.mid}" stroke-width="8" stroke-dasharray="2 5" opacity=".75"/>
+    <g clip-path="url(#${id}-scene)"><svg x="460" y="165" width="660" height="280" viewBox="0 0 660 280">${SCENES[b.key].back(c, `url(#${id}-h)`, id + "s")}</svg></g>
+    <rect x="460" y="165" width="660" height="280" rx="10" fill="none" stroke="${c.ink}" stroke-width="3"/>
+    ${fedSeal(b, 540, 532, id)}${treasurySeal(b, 1040, 532, id)}
+    <text x="790" y="532" text-anchor="middle" font-size="25" font-weight="700" letter-spacing="3" fill="${c.ink}">${b.word}</text>
+    <text x="790" y="566" text-anchor="middle" class="sans" font-size="13" font-weight="600" letter-spacing="2" fill="${c.mid}">${b.back.toUpperCase()}</text>
+    <g transform="${mirror}">${watermark(b, id)}${dots(b)}</g>
+    <text x="1500" y="140" text-anchor="end" font-size="58" font-weight="800" fill="${c.ink}">${n}</text>
+    <text x="58" y="618" font-size="66" font-weight="800" fill="${c.mid}">${n}</text>
+    ${specimen(c)}${uvshade}
+    <g transform="${mirror}">${thread(b)}</g>
+    <rect x="1150" y="165" width="310" height="400" rx="8" fill="#fdfdfb" stroke="${c.ink}" stroke-width="2"/>
+    <text x="1305" y="${n.length === 1 ? 470 : 450}" text-anchor="middle" font-size="${big.fs}" font-weight="900" fill="${c.ink}"${big.tl}>${n}</text>
+    <text x="1305" y="535" text-anchor="middle" class="sans" font-size="22" font-weight="700" letter-spacing="6" fill="${c.ink}">${n === "1" ? "DOLLAR" : "DOLLARS"}</text>
+    ${tag(58, 138, "Serial number", "start")}
+    ${tag(540, 532, "Fed. Reserve seal")}
+    ${tag(1040, 532, "Treasury seal")}
+    ${tag(1305, 200, "A1 High contrast")}
+    ${tag(1470, 340, "A2 Tactile dots", "end")}
+    ${tag(1560 - b.thread, 612, "S2 Thread")}
+    ${tag(310, 300, "S3 Watermark")}
+  </svg>`;
+}
+
+/* ---------- Page assembly ---------- */
+const gallery = document.getElementById("gallery");
+gallery.innerHTML = BILLS.map(b => `
+  <article class="denom" id="note-${b.v}" aria-labelledby="h-${b.v}">
+    <div class="denom-head">
+      <span class="denom-num">$${b.v}</span>
+      <h2 id="h-${b.v}">${b.theme}</h2>
+      <span class="chip"><i style="background:linear-gradient(90deg, ${b.c.ink} 0 33%, ${b.c.mid} 33% 66%, ${b.c.tint} 66%)"></i>${b.colorName}</span>
+    </div>
+    <div class="sides">
+      <figure><div class="note-wrap">${noteFront(b)}</div><figcaption><b>Front</b>${b.front}</figcaption></figure>
+      <figure><div class="note-wrap">${noteBack(b)}</div><figcaption><b>Back</b>${b.back}</figcaption></figure>
+    </div>
+    <dl class="specs">
+      <div><dt>Tactile code</dt><dd>${b.dots} raised dot${b.dots > 1 ? "s" : ""}</dd></div>
+      <div><dt>Security thread</dt><dd>Reads "USA ${b.v}", glows ${b.uvName} under UV</dd></div>
+      <div><dt>Serial number</dt><dd class="mono">${b.serial}</dd></div>
+      <div><dt>Federal Reserve seal</dt><dd>District ${b.district}, ${b.city.replace(/\B\w+/g, w => w.toLowerCase())}</dd></div>
+    </dl>
+  </article>`).join("");
+
+document.getElementById("swatches").innerHTML = BILLS.map(b => `
+  <div class="swatch">
+    <div class="bars"><div style="background:${b.c.mid}"></div><div style="background:${b.c.ink}"></div><div style="background:${b.c.tint}"></div></div>
+    <b>$${b.v}</b><span>${b.colorName}</span>
+  </div>`).join("");
+
+const board = document.getElementById("board");
+document.querySelectorAll(".toggle").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const on = btn.getAttribute("aria-pressed") !== "true";
+    btn.setAttribute("aria-pressed", String(on));
+    board.classList.toggle(btn.dataset.mode, on);
+  });
+});
+</script>
